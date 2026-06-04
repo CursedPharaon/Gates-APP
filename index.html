@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>🚪 GATES RPG · Оффлайн</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #0a0a0f;
+            background-image: radial-gradient(circle at 10% 20%, #12121c 0%, #050508 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 16px;
+            font-family: 'Courier New', 'Lucida Console', monospace;
+        }
+
+        .game-client {
+            max-width: 620px;
+            width: 100%;
+            background: #11151f;
+            border-radius: 0px;
+            box-shadow: 0 0 0 2px #3e2a1f, 0 0 0 5px #0c0e12, 0 20px 40px black;
+            border-top: 1px solid #5e4a35;
+        }
+
+        .game-titlebar {
+            background: #1a1814;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #bfaa7f;
+            border-bottom: 1px solid #3e2a1f;
+            font-family: monospace;
+        }
+
+        .game-content {
+            padding: 20px 18px;
+        }
+
+        .game-screen {
+            background: #03060c;
+            border: 2px solid #2a2a1c;
+            padding: 16px;
+            margin-bottom: 24px;
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.8), 0 2px 0 #2a2a1c;
+        }
+
+        .stats-grid {
+            background: #0c0e14;
+            padding: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #2c3a2a;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ccddcc;
+        }
+
+        .stat-block {
+            background: #03060a;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border-left: 3px solid #c99e6f;
+        }
+
+        .stat-block span {
+            color: #f5bc70;
+            margin-right: 6px;
+        }
+
+        .enemy-card {
+            background: #0b0f16;
+            text-align: center;
+            padding: 16px;
+            border: 1px solid #3a4a3a;
+            margin-bottom: 18px;
+            box-shadow: inset 0 0 0 1px #1e2a1a, 0 4px 0 #1a1a0a;
+        }
+
+        .enemy-icon {
+            font-size: 88px;
+            filter: drop-shadow(2px 4px 6px black);
+            margin: 8px 0;
+            transition: all 0.07s linear;
+        }
+
+        .enemy-icon.hit-effect {
+            transform: translateX(6px) translateY(4px);
+            filter: drop-shadow(0 0 4px #ff8855);
+        }
+
+        .enemy-name {
+            font-size: 22px;
+            font-weight: bold;
+            background: #00000066;
+            display: inline-block;
+            padding: 2px 24px;
+            border-radius: 40px;
+            color: #eecd9e;
+            letter-spacing: 2px;
+        }
+
+        .hp-wrap {
+            background: #1e1a1a;
+            border-radius: 20px;
+            padding: 4px;
+            margin: 12px auto;
+            max-width: 260px;
+            box-shadow: inset 0 1px 3px black;
+        }
+
+        .hp-fill {
+            background: #bc4a2a;
+            height: 20px;
+            border-radius: 18px;
+            width: 100%;
+            transition: width 0.1s ease;
+            box-shadow: inset 0 1px 2px #ffaa88;
+        }
+
+        .hp-text {
+            font-size: 13px;
+            font-weight: bold;
+            color: #ffaa77;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 18px 0;
+        }
+
+        .legacy-btn {
+            background: #1d2a1d;
+            border: none;
+            padding: 12px 0;
+            font-size: 18px;
+            font-weight: bold;
+            font-family: monospace;
+            color: #f2e8cf;
+            border-radius: 0px;
+            cursor: pointer;
+            transition: 0.03s linear;
+            box-shadow: 0 5px 0 #0a120a;
+            background: linear-gradient(145deg, #2a3a24, #182018);
+            letter-spacing: 2px;
+        }
+
+        .legacy-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #0a120a;
+        }
+
+        .attack-btn {
+            background: linear-gradient(145deg, #6a2a2a, #4a1a1a);
+            box-shadow: 0 5px 0 #2a0a0a;
+            color: #ffc09f;
+            font-size: 22px;
+        }
+
+        .special-btn {
+            background: linear-gradient(145deg, #2a4a4a, #1a2a2a);
+        }
+
+        .menu-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .menu-row .legacy-btn {
+            flex: 1;
+            font-size: 14px;
+            padding: 9px 0;
+        }
+
+        .game-panel {
+            background: #0c1018;
+            margin-top: 18px;
+            padding: 14px;
+            border: 1px solid #4a5a3a;
+            max-height: 280px;
+            overflow-y: auto;
+        }
+
+        .panel-item {
+            background: #1a2420;
+            padding: 8px 14px;
+            margin: 6px 0;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 2px solid #2a3a2a;
+        }
+
+        .panel-item:active {
+            transform: translateY(2px);
+        }
+
+        .close-panel {
+            background: #4a3020;
+            text-align: center;
+            padding: 8px;
+            margin-top: 12px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .dmg-number {
+            position: fixed;
+            font-size: 34px;
+            font-weight: bold;
+            font-family: monospace;
+            color: #ffb87c;
+            text-shadow: 2px 2px 0 #3a0a0a;
+            pointer-events: none;
+            z-index: 200;
+            animation: floatup 0.55s ease-out forwards;
+        }
+
+        @keyframes floatup {
+            0% { opacity: 1; transform: translateY(0px) scale(1); }
+            100% { opacity: 0; transform: translateY(-70px) scale(1.3); }
+        }
+
+        .crit-dmg {
+            color: #ff5a4a;
+            font-size: 44px;
+            text-shadow: 0 0 6px red;
+        }
+
+        .toast-effect {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0f0f0a;
+            border: 1px solid #bfa87a;
+            padding: 6px 20px;
+            font-weight: bold;
+            color: #eedd99;
+            font-size: 14px;
+            animation: fadeOut 1.5s forwards;
+            pointer-events: none;
+            white-space: nowrap;
+            font-family: monospace;
+        }
+
+        @keyframes fadeOut {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        hr {
+            border-color: #4a5a3a;
+            margin: 6px 0;
+        }
+
+        .save-load {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .save-load button {
+            flex: 1;
+            background: #2a3a3a;
+            font-size: 12px;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="game-client">
+    <div class="game-titlebar">
+        <span>🚪 GATES RPG</span>
+        <span>v.1.0 · ОФФЛАЙН</span>
+    </div>
+    <div class="game-content">
+        <div class="game-screen">
+            <div class="stats-grid">
+                <div class="stat-block"><span>⚔️</span> <span id="className">ВОИН</span></div>
+                <div class="stat-block"><span>⭐</span> УР.<span id="lvl">1</span></div>
+                <div class="stat-block"><span>❤️</span> <span id="hp">210</span>/<span id="maxHp">210</span></div>
+                <div class="stat-block"><span>🪙</span> <span id="gold">1400</span></div>
+                <div class="stat-block"><span>✨</span> <span id="glory">0</span></div>
+                <div class="stat-block"><span>⚡</span> <span id="dmgStat">27</span></div>
+                <div class="stat-block"><span>🔨</span> <span id="weaponName">Ржавый меч</span></div>
+            </div>
+
+            <div class="enemy-card">
+                <div class="enemy-icon" id="enemyIcon">👹</div>
+                <div class="enemy-name" id="enemyName">Лесной тролль</div>
+                <div class="hp-wrap">
+                    <div class="hp-fill" id="enemyHpFill" style="width: 100%"></div>
+                </div>
+                <div class="hp-text" id="enemyHpText">❤️ 280 / 280</div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="legacy-btn attack-btn" id="attackBtn">⚔️ АТАКА</button>
+                <button class="legacy-btn" id="healBtn">💚 ЛЕЧЕНИЕ</button>
+                <button class="legacy-btn special-btn" id="upgradeBtn">🔨 ЗАТОЧКА +1</button>
+                <button class="legacy-btn" id="nextEnemyBtn">🌀 СМЕНА ВРАГА</button>
+            </div>
+            <div class="menu-row">
+                <button class="legacy-btn" id="shopBtn">🏪 МАГАЗИН</button>
+                <button class="legacy-btn" id="talentsBtn">⭐ ТАЛАНТЫ</button>
+                <button class="legacy-btn" id="statsBtn">📦 СТАТЫ</button>
+            </div>
+            <div class="save-load">
+                <button class="legacy-btn" id="saveBtn">💾 СОХРАНИТЬ</button>
+                <button class="legacy-btn" id="loadBtn">📀 ЗАГРУЗИТЬ</button>
+                <button class="legacy-btn" id="resetBtn">🔄 СБРОС</button>
+            </div>
+        </div>
+
+        <div id="dynamicPanel" class="game-panel hidden"></div>
+    </div>
+</div>
+
+<script>
+    // ========== GATES RPG · ОФФЛАЙН ВЕРСИЯ ==========
+    
+    // ВРАГИ (12 штук)
+    const ENEMIES = [
+        { name: "🍄 Лесной тролль", hp: 280, atk: 32, gold: 110, xp: 52, glory: 6, icon: "👹", key: "Медный ключ", keyChance: 0.6 },
+        { name: "🔥 Огненный элементаль", hp: 340, atk: 41, gold: 150, xp: 70, glory: 9, icon: "🔥", key: "Огненный ключ", keyChance: 0.55 },
+        { name: "⚔️ Теневой рыцарь", hp: 430, atk: 55, gold: 210, xp: 105, glory: 14, icon: "🗡️", key: "Теневой ключ", keyChance: 0.5 },
+        { name: "❄️ Ледяной голем", hp: 510, atk: 68, gold: 280, xp: 140, glory: 18, icon: "❄️", key: "Ледяной ключ", keyChance: 0.45 },
+        { name: "💀 Древний скелет", hp: 470, atk: 72, gold: 310, xp: 160, glory: 21, icon: "💀", key: "Костяной ключ", keyChance: 0.4 },
+        { name: "🐉 Пустынный дракон", hp: 640, atk: 92, gold: 440, xp: 230, glory: 29, icon: "🐉", key: "Драконий ключ", keyChance: 0.35 },
+        { name: "🌀 Магистр хаоса", hp: 580, atk: 98, gold: 490, xp: 260, glory: 33, icon: "🌀", key: "Магический ключ", keyChance: 0.3 },
+        { name: "🪨 Каменный титан", hp: 790, atk: 115, gold: 660, xp: 360, glory: 41, icon: "🪨", key: "Рунический ключ", keyChance: 0.25 },
+        { name: "👑 Король орков", hp: 710, atk: 108, gold: 610, xp: 330, glory: 38, icon: "👑", key: "Королевский ключ", keyChance: 0.3 },
+        { name: "⚡ Громовой дух", hp: 860, atk: 128, gold: 790, xp: 440, glory: 50, icon: "⚡", key: "Громовой ключ", keyChance: 0.2 },
+        { name: "🌋 Владыка магмы", hp: 1020, atk: 152, gold: 980, xp: 550, glory: 65, icon: "🌋", key: "Магмовый ключ", keyChance: 0.15 },
+        { name: "🐉 Изначальный дракон", hp: 1250, atk: 185, gold: 1350, xp: 760, glory: 85, icon: "🐉", key: "Древний ключ", keyChance: 0.1 }
+    ];
+
+    // ЭЛИТНЫЕ БОССЫ (нужны ключи)
+    const ELITE_BOSSES = [
+        { name: "🗿 Каменный страж", hp: 800, atk: 70, gold: 500, xp: 250, glory: 30, needKey: "Медный ключ", icon: "🗿" },
+        { name: "❄️ Ледяной дракон", hp: 1200, atk: 95, gold: 750, xp: 380, glory: 45, needKey: "Огненный ключ", icon: "❄️🐉" },
+        { name: "💀 Лич Некромант", hp: 1800, atk: 130, gold: 1100, xp: 550, glory: 60, needKey: "Теневой ключ", icon: "💀" },
+        { name: "🐉 Древний виверн", hp: 2500, atk: 170, gold: 1600, xp: 800, glory: 80, needKey: "Драконий ключ", icon: "🐉" },
+        { name: "🌋 Повелитель магмы", hp: 3400, atk: 220, gold: 2300, xp: 1150, glory: 110, needKey: "Магмовый ключ", icon: "🌋" },
+        { name: "👑 Король драконов", hp: 5000, atk: 300, gold: 3500, xp: 1800, glory: 160, needKey: "Древний ключ", icon: "👑🐉" }
+    ];
+
+    // ОРУЖИЕ
+    const WEAPONS = [
+        { name: "⚔️ Ржавый меч", dmg: 12, cost: 0 },
+        { name: "🗡️ Стальной клинок", dmg: 24, cost: 480 },
+        { name: "🔥 Пламенный топор", dmg: 38, cost: 1050 },
+        { name: "❄️ Ледяной рассекатель", dmg: 54, cost: 1780 },
+        { name: "⚡ Громовой меч", dmg: 72, cost: 2750 },
+        { name: "💀 Жнец душ", dmg: 94, cost: 4100 },
+        { name: "🐉 Драконий гнев", dmg: 120, cost: 5900 },
+        { name: "🌀 Клинок Хаоса", dmg: 155, cost: 8200 },
+        { name: "⭐ Звёздный клинок", dmg: 200, cost: 11500 },
+        { name: "🌌 Артефакт древних", dmg: 280, cost: 17000 }
+    ];
+
+    // ИГРОК
+    let player = {
+        className: "ВОИН",
+        level: 1,
+        xp: 0,
+        gold: 1400,
+        glory: 0,
+        hp: 210,
+        maxHp: 210,
+        weaponIdx: 0,
+        weapon: WEAPONS[0],
+        weaponUpgrade: 0,
+        talents: { dmg: 0, crit: 0, hp: 0 },
+        talentPoints: 1,
+        keys: {},
+        materials: {}
+    };
+
+    let currentEnemy = null;
+    let enemyIndex = 0;
+    let inBattle = false;
+    let currentBattleEnemy = null;
+
+    // ========== ИГРОВЫЕ ФУНКЦИИ ==========
+    function getWeaponTotalDmg() {
+        return player.weapon.dmg + player.weaponUpgrade * 5;
+    }
+
+    function getPlayerDamage() {
+        let dmg = getWeaponTotalDmg() + Math.floor(player.level * 2.2) + player.talents.dmg * 4;
+        return Math.floor(dmg + Math.random() * 12);
+    }
+
+    function getCritChance() {
+        return 0.08 + player.talents.crit * 0.025;
+    }
+
+    function getMaxHp() {
+        return Math.floor(player.maxHp * (1 + player.talents.hp * 0.05));
+    }
+
+    function getKeysText() {
+        let keys = player.keys;
+        if (Object.keys(keys).length === 0) return "нет";
+        return Object.entries(keys).map(([k, v]) => `${k}: ${v}`).join(", ");
+    }
+
+    function getMaterialsText() {
+        let mats = player.materials;
+        if (Object.keys(mats).length === 0) return "нет";
+        return Object.entries(mats).map(([k, v]) => `${k}: ${v}`).join(", ");
+    }
+
+    function updateUI() {
+        document.getElementById("className").innerText = player.className;
+        document.getElementById("lvl").innerText = player.level;
+        let maxHp = getMaxHp();
+        document.getElementById("hp").innerText = Math.min(player.hp, maxHp);
+        document.getElementById("maxHp").innerText = maxHp;
+        document.getElementById("gold").innerText = Math.floor(player.gold);
+        document.getElementById("glory").innerText = Math.floor(player.glory);
+        document.getElementById("dmgStat").innerHTML = getPlayerDamage();
+        let weaponDisplay = player.weapon.name + (player.weaponUpgrade > 0 ? ` +${player.weaponUpgrade}` : "");
+        document.getElementById("weaponName").innerText = weaponDisplay;
+
+        if (currentEnemy) {
+            document.getElementById("enemyName").innerHTML = currentEnemy.name;
+            document.getElementById("enemyIcon").innerHTML = currentEnemy.icon || "👹";
+            let percent = (currentEnemy.hp / currentEnemy.maxHp) * 100;
+            document.getElementById("enemyHpFill").style.width = `${Math.max(0, percent)}%`;
+            document.getElementById("enemyHpText").innerHTML = `❤️ ${Math.max(0, Math.floor(currentEnemy.hp))} / ${currentEnemy.maxHp}`;
+        }
+    }
+
+    function showFloatingDamage(dmg, isCrit) {
+        let div = document.createElement("div");
+        div.className = "dmg-number";
+        if (isCrit) div.classList.add("crit-dmg");
+        div.innerText = isCrit ? `⚡${dmg}!!` : `${dmg}`;
+        div.style.left = "55%";
+        div.style.top = "32%";
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 550);
+    }
+
+    function hitAnimation() {
+        let icon = document.getElementById("enemyIcon");
+        icon.classList.add("hit-effect");
+        setTimeout(() => icon.classList.remove("hit-effect"), 120);
+    }
+
+    function showToast(msg, isError = false) {
+        let toast = document.createElement("div");
+        toast.className = "toast-effect";
+        toast.innerText = msg;
+        if (isError) toast.style.color = "#ffaa88";
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 1500);
+    }
+
+    // АТАКА
+    function attack() {
+        if (!currentEnemy || currentEnemy.hp <= 0) {
+            showToast("❌ Нет врага! Нажми «СМЕНА ВРАГА»");
+            return;
+        }
+
+        let dmg = getPlayerDamage();
+        let isCrit = Math.random() < getCritChance();
+        if (isCrit) dmg = Math.floor(dmg * 1.7);
+
+        currentEnemy.hp -= dmg;
+        showFloatingDamage(dmg, isCrit);
+        hitAnimation();
+        updateUI();
+
+        if (currentEnemy.hp <= 0) {
+            defeatEnemy();
+        } else {
+            enemyAttack();
+        }
+    }
+
+    // ВРАГ АТАКУЕТ
+    function enemyAttack() {
+        if (!currentEnemy || currentEnemy.hp <= 0) return;
+
+        let enemyDmg = Math.max(5, currentEnemy.atk + Math.floor(Math.random() * 12) - Math.floor(player.level * 0.4));
+        player.hp -= enemyDmg;
+
+        let screen = document.querySelector(".game-screen");
+        screen.style.backgroundColor = "#1f1410";
+        setTimeout(() => screen.style.backgroundColor = "", 100);
+
+        updateUI();
+        showToast(`😈 ${currentEnemy.name} наносит ${enemyDmg} урона!`);
+
+        if (player.hp <= 0) {
+            player.hp = getMaxHp();
+            player.gold = Math.max(300, Math.floor(player.gold * 0.85));
+            updateUI();
+            showToast("💀 Ты пал! Восстановлен в таверне. Потеряно 15% золота.", true);
+        }
+    }
+
+    // ПОБЕДА
+    function defeatEnemy() {
+        let goldGain = currentEnemy.gold + Math.floor(Math.random() * 50);
+        let gloryGain = currentEnemy.glory || 5;
+        let xpGain = currentEnemy.xp;
+
+        player.gold += goldGain;
+        player.glory += gloryGain;
+        player.xp += xpGain;
+
+        // Выпадение ключа
+        if (currentEnemy.key && Math.random() < currentEnemy.keyChance) {
+            player.keys[currentEnemy.key] = (player.keys[currentEnemy.key] || 0) + 1;
+            showToast(`🔑 Выпал ${currentEnemy.key}!`);
+        }
+
+        // Проверка уровня
+        let needXp = 100 + player.level * 15;
+        let leveled = false;
+        while (player.xp >= needXp) {
+            player.level++;
+            player.xp -= needXp;
+            player.maxHp += 20;
+            player.talentPoints++;
+            needXp = 100 + player.level * 15;
+            leveled = true;
+        }
+
+        if (leveled) {
+            showToast(`✨ УРОВЕНЬ ${player.level}! +1 очко талантов ✨`);
+        }
+
+        player.hp = getMaxHp();
+        updateUI();
+        showToast(`🏆 ПОБЕДА! +${goldGain}💰 +${gloryGain}✨ +${xpGain}⭐`);
+
+        nextEnemy();
+    }
+
+    // СЛЕДУЮЩИЙ ВРАГ
+    function nextEnemy() {
+        enemyIndex = (enemyIndex + 1) % ENEMIES.length;
+        let newEnemy = { ...ENEMIES[enemyIndex] };
+        newEnemy.hp = newEnemy.maxHp;
+        currentEnemy = newEnemy;
+        updateUI();
+    }
+
+    // ЛЕЧЕНИЕ
+    function heal() {
+        let cost = 45;
+        let maxHp = getMaxHp();
+
+        if (player.gold >= cost && player.hp < maxHp) {
+            let healAmount = 48;
+            player.hp = Math.min(maxHp, player.hp + healAmount);
+            player.gold -= cost;
+            updateUI();
+            showToast(`💚 Восстановлено ${healAmount} HP! -${cost}💰`);
+        } else {
+            showToast("❌ Не хватает золота или HP полное!", true);
+        }
+    }
+
+    // ЗАТОЧКА ОРУЖИЯ
+    function upgradeWeapon() {
+        if (player.weaponUpgrade >= 12) {
+            showToast("🔨 Оружие уже заточено до +12!", true);
+            return;
+        }
+
+        let cost = 300 + player.weaponUpgrade * 120;
+        if (player.gold < cost) {
+            showToast(`❌ Не хватает ${cost} золота!`, true);
+            return;
+        }
+
+        let chance = Math.max(0.3, 0.85 - player.weaponUpgrade * 0.045);
+
+        if (Math.random() < chance) {
+            player.weaponUpgrade++;
+            player.gold -= cost;
+            updateUI();
+            showToast(`✅ УСПЕХ! Оружие +${player.weaponUpgrade} (урон +${player.weaponUpgrade * 5})`);
+        } else {
+            let lost = Math.floor(cost * 0.5);
+            player.gold -= lost;
+            updateUI();
+            showToast(`💥 ПРОВАЛ! Потеряно ${lost} золота.`, true);
+        }
+    }
+
+    // ========== МЕНЮ ==========
+    function showShop() {
+        let panel = document.getElementById("dynamicPanel");
+        panel.innerHTML = `<div><strong>🏪 ОРУЖЕЙНАЯ МАСТЕРА</strong><hr>`;
+        WEAPONS.forEach((w, idx) => {
+            let owned = (player.weaponIdx === idx) ? " ✅" : "";
+            panel.innerHTML += `<div class="panel-item" data-weapon="${idx}">${w.name} +${w.dmg} — ${w.cost}💰${owned}</div>`;
+        });
+        panel.innerHTML += `<hr><div class="close-panel" id="closePanel">ЗАКРЫТЬ</div></div>`;
+        panel.classList.remove("hidden");
+
+        document.querySelectorAll("[data-weapon]").forEach(el => {
+            el.onclick = () => {
+                let idx = parseInt(el.dataset.weapon);
+                let w = WEAPONS[idx];
+                if (player.gold >= w.cost && idx > player.weaponIdx) {
+                    player.gold -= w.cost;
+                    player.weapon = w;
+                    player.weaponIdx = idx;
+                    updateUI();
+                    showShop();
+                } else {
+                    showToast("❌ Недостаточно золота или оружие слабее", true);
+                }
+            };
+        });
+        document.getElementById("closePanel").onclick = () => panel.classList.add("hidden");
+    }
+
+    function showTalents() {
+        let panel = document.getElementById("dynamicPanel");
+        panel.innerHTML = `<div><strong>⭐ ДРЕВО ТАЛАНТОВ</strong> (очков: ${player.talentPoints})<hr>
+            <div class="panel-item" data-talent="dmg">💪 СИЛА: +${player.talents.dmg * 4} урона</div>
+            <div class="panel-item" data-talent="crit">🎯 МЕТКОСТЬ: +${(player.talents.crit * 2.5).toFixed(0)}% крита</div>
+            <div class="panel-item" data-talent="hp">❤️ ЖИВУЧЕСТЬ: +${player.talents.hp * 5}% HP</div>
+            <hr><div class="close-panel" id="closePanel">ЗАКРЫТЬ</div>
+        </div>`;
+        panel.classList.remove("hidden");
+
+        document.querySelectorAll("[data-talent]").forEach(el => {
+            el.onclick = () => {
+                if (player.talentPoints <= 0) {
+                    showToast("❌ Нет очков талантов!", true);
+                    return;
+                }
+                let type = el.dataset.talent;
+                if (type === "dmg") player.talents.dmg++;
+                if (type === "crit") player.talents.crit++;
+                if (type === "hp") player.talents.hp++;
+                player.talentPoints--;
+                updateUI();
+                showTalents();
+            };
+        });
+        document.getElementById("closePanel").onclick = () => panel.classList.add("hidden");
+    }
+
+    function showStats() {
+        let panel = document.getElementById("dynamicPanel");
+        let critChance = (getCritChance() * 100).toFixed(1);
+        panel.innerHTML = `<div><strong>📜 СВОДКА ГЕРОЯ</strong><hr>
+            🎭 Класс: ${player.className}<br>
+            ⭐ Уровень: ${player.level} (${player.xp}/${100 + player.level * 15} XP)<br>
+            🗡️ Оружие: ${player.weapon.name} +${player.weaponUpgrade}<br>
+            ⚔️ Урон: ${getPlayerDamage()}<br>
+            🎯 Шанс крита: ${critChance}%<br>
+            💪 Бонус талантов урон: +${player.talents.dmg * 4}<br>
+            🔑 Ключи: ${getKeysText()}<br>
+            📦 Материалы: ${getMaterialsText()}<hr>
+            <div class="close-panel" id="closePanel">ЗАКРЫТЬ</div>
+        </div>`;
+        panel.classList.remove("hidden");
+        document.getElementById("closePanel").onclick = () => panel.classList.add("hidden");
+    }
+
+    function showEliteBosses() {
+        let panel = document.getElementById("dynamicPanel");
+        panel.innerHTML = `<div><strong>👑 ЭЛИТНЫЕ БОССЫ</strong><hr>`;
+        ELITE_BOSSES.forEach((boss, idx) => {
+            let hasKey = player.keys[boss.needKey] > 0;
+            let status = hasKey ? "✅" : "🔒";
+            panel.innerHTML += `<div class="panel-item" data-elite="${idx}">${status} ${boss.name} (нужен ${boss.needKey}) — ${boss.glory}✨</div>`;
+        });
+        panel.innerHTML += `<hr><div class="close-panel" id="closePanel">ЗАКРЫТЬ</div></div>`;
+        panel.classList.remove("hidden");
+
+        document.querySelectorAll("[data-elite]").forEach(el => {
+            el.onclick = () => {
+                let idx = parseInt(el.dataset.elite);
+                let boss = ELITE_BOSSES[idx];
+                if (player.keys[boss.needKey] > 0) {
+                    player.keys[boss.needKey]--;
+                    if (player.keys[boss.needKey] === 0) delete player.keys[boss.needKey];
+                    
+                    currentEnemy = {
+                        name: boss.name,
+                        maxHp: boss.hp,
+                        hp: boss.hp,
+                        atk: boss.atk,
+                        gold: boss.gold,
+                        xp: boss.xp,
+                        glory: boss.glory,
+                        icon: boss.icon || "👑"
+                    };
+                    updateUI();
+                    panel.classList.add("hidden");
+                    showToast(`⚔️ БОСС: ${boss.name}!`);
+                } else {
+                    showToast(`❌ Нужен ${boss.needKey}!`, true);
+                }
+            };
+        });
+        document.getElementById("closePanel").onclick = () => panel.classList.add("hidden");
+    }
+
+    // ========== СОХРАНЕНИЕ И ЗАГРУЗКА ==========
+    function saveGame() {
+        const saveData = {
+            player: {
+                level: player.level,
+                xp: player.xp,
+                gold: player.gold,
+                glory: player.glory,
+                hp: player.hp,
+                maxHp: player.maxHp,
+                weaponIdx: player.weaponIdx,
+                weapon: player.weapon,
+                weaponUpgrade: player.weaponUpgrade,
+                talents: player.talents,
+                talentPoints: player.talentPoints,
+                keys: player.keys,
+                materials: player.materials
+            },
+            enemyIndex: enemyIndex
+        };
+        localStorage.setItem("gatesRpgSave", JSON.stringify(saveData));
+        showToast("💾 Игра сохранена!");
+    }
+
+    function loadGame() {
+        const saveData = localStorage.getItem("gatesRpgSave");
+        if (!saveData) {
+            showToast("❌ Нет сохранений!", true);
+            return;
+        }
+        
+        try {
+            const data = JSON.parse(saveData);
+            player.level = data.player.level;
+            player.xp = data.player.xp;
+            player.gold = data.player.gold;
+            player.glory = data.player.glory;
+            player.hp = data.player.hp;
+            player.maxHp = data.player.maxHp;
+            player.weaponIdx = data.player.weaponIdx;
+            player.weapon = data.player.weapon;
+            player.weaponUpgrade = data.player.weaponUpgrade;
+            player.talents = data.player.talents;
+            player.talentPoints = data.player.talentPoints;
+            player.keys = data.player.keys || {};
+            player.materials = data.player.materials || {};
+            enemyIndex = data.enemyIndex;
+            
+            currentEnemy = { ...ENEMIES[enemyIndex % ENEMIES.length] };
+            currentEnemy.hp = currentEnemy.maxHp;
+            
+            updateUI();
+            showToast("📀 Игра загружена!");
+        } catch(e) {
+            showToast("❌ Ошибка загрузки!", true);
+        }
+    }
+
+    function resetGame() {
+        if (confirm("⚠️ Сбросить весь прогресс? Это нельзя отменить!")) {
+            localStorage.removeItem("gatesRpgSave");
+            location.reload();
+        }
+    }
+
+    // ========== ИНИЦИАЛИЗАЦИЯ ==========
+    function initGame() {
+        currentEnemy = { ...ENEMIES[0] };
+        currentEnemy.hp = currentEnemy.maxHp;
+        updateUI();
+    }
+
+    // КНОПКИ
+    document.getElementById("attackBtn").onclick = attack;
+    document.getElementById("healBtn").onclick = heal;
+    document.getElementById("upgradeBtn").onclick = upgradeWeapon;
+    document.getElementById("nextEnemyBtn").onclick = nextEnemy;
+    document.getElementById("shopBtn").onclick = showShop;
+    document.getElementById("talentsBtn").onclick = showTalents;
+    document.getElementById("statsBtn").onclick = showStats;
+    document.getElementById("saveBtn").onclick = saveGame;
+    document.getElementById("loadBtn").onclick = loadGame;
+    document.getElementById("resetBtn").onclick = resetGame;
+
+    // Добавляем элитных боссов в меню (через дополнительную кнопку в панели)
+    // Просто добавим обработчик, но кнопку добавим в основное меню
+    const menuRow = document.querySelector(".menu-row");
+    const eliteBtn = document.createElement("button");
+    eliteBtn.className = "legacy-btn";
+    eliteBtn.id = "eliteBtn";
+    eliteBtn.innerHTML = "👑 ЭЛИТНЫЕ";
+    eliteBtn.onclick = showEliteBosses;
+    menuRow.appendChild(eliteBtn);
+
+    initGame();
+</script>
+</body>
+</html>
