@@ -2,11 +2,11 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Тысячи врат - Онлайн RPG</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; }
         body {
             background: #0a0c16;
             font-family: system-ui, monospace;
@@ -16,19 +16,18 @@
             color: #eef4ff;
         }
         .game-container {
-            max-width: 700px;
+            max-width: 600px;
             margin: 0 auto;
             background: #03060e;
             border-radius: 28px;
             overflow: hidden;
-            box-shadow: 0 0 0 1px #2a3f55;
         }
         .stats-panel {
             background: #010a17;
-            padding: 10px 12px;
+            padding: 10px;
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
             justify-content: space-between;
             font-size: 0.7rem;
             font-weight: bold;
@@ -55,13 +54,13 @@
             overflow-y: auto;
             padding: 10px;
             background: #051020;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
         .msg {
             background: #0f1a2c;
-            padding: 6px 10px;
+            padding: 5px 10px;
             border-radius: 18px;
-            margin-bottom: 6px;
+            margin-bottom: 5px;
             border-left: 3px solid #4c7a9a;
         }
         .msg.system { border-left-color: #d6b356; }
@@ -70,7 +69,7 @@
             background: #030c17;
             padding: 10px;
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(2, 1fr);
             gap: 8px;
         }
         .buttons-panel button {
@@ -78,9 +77,9 @@
             border: none;
             color: white;
             font-weight: bold;
-            padding: 10px;
+            padding: 12px;
             border-radius: 40px;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             cursor: pointer;
         }
         .online-btn { background: #2e6e5a; }
@@ -95,13 +94,12 @@
             flex: 1;
             background: #0f1b2f;
             border: none;
-            padding: 12px 16px;
+            padding: 12px;
             border-radius: 40px;
             color: white;
             font-size: 0.9rem;
             outline: none;
         }
-        button { background: #2c4f6e; color: white; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; }
         .hidden { display: none; }
         .sub-panel {
             background: #0a1424;
@@ -119,10 +117,6 @@
             width: 100%;
             margin: 8px 0;
         }
-        .login-panel button {
-            margin: 5px;
-            padding: 10px 20px;
-        }
         .class-selector {
             display: flex;
             gap: 10px;
@@ -131,7 +125,7 @@
         }
         .class-btn {
             background: #2a3f55;
-            padding: 15px;
+            padding: 12px;
             flex: 1;
             text-align: center;
             border-radius: 60px;
@@ -144,23 +138,15 @@
             border-radius: 40px;
             margin: 5px;
             cursor: pointer;
-            font-size: 0.8rem;
-        }
-        .shop-item {
-            background: #162336;
-            padding: 8px;
-            border-radius: 40px;
-            margin: 5px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 <div class="game-container">
     <div class="stats-panel">
-        <div>⚔️ <span id="className">???</span> | Ур.<span id="lvl">1</span></div>
+        <div>⚔️ <span id="className">???</span></div>
+        <div>Ур.<span id="lvl">1</span></div>
         <div>❤️ <span id="hp">200</span>/<span id="maxHp">200</span></div>
         <div>🪙 <span id="gold">800</span></div>
         <div>✨ <span id="glory">0</span></div>
@@ -168,13 +154,13 @@
     </div>
     
     <div class="enemy-panel" id="enemyPanel" style="display: none;">
-        <span>👾 <span id="enemyName">Гоблин</span></span>
-        <span>❤️ <span id="enemyHp">120</span></span>
-        <span>⚔️ <span id="enemyAtk">28</span></span>
+        <span>👾 <span id="enemyName"></span></span>
+        <span>❤️ <span id="enemyHp"></span></span>
+        <span>⚔️ <span id="enemyAtk"></span></span>
     </div>
 
     <div class="chat" id="chatArea">
-        <div class="msg system">🌀 Тысячи врат. Нажмите "ВОЙТИ" для начала.</div>
+        <div class="msg system">🌀 Нажмите ВОЙТИ или ЗАРЕГИСТРИРОВАТЬСЯ</div>
     </div>
 
     <div id="dynamicPanel" class="sub-panel hidden"></div>
@@ -183,74 +169,74 @@
         <button id="loginBtn" class="online-btn">🔐 ВОЙТИ</button>
         <button id="registerBtn" class="online-btn">📝 РЕГИСТРАЦИЯ</button>
         <button id="logoutBtn">🚪 ВЫЙТИ</button>
-        <button id="questBtn">📜 КВЕСТЫ</button>
-        <button id="bossBtn">👑 БОССЫ</button>
         <button id="attackBtn">⚔️ АТАКА</button>
         <button id="healBtn">💚 ЛЕЧИТЬ</button>
         <button id="shopBtn">🏪 МАГАЗИН</button>
+        <button id="questBtn">📜 БОССЫ</button>
         <button id="leaderboardBtn" class="online-btn">🏆 РЕЙТИНГ</button>
     </div>
 
     <div class="input-area">
-        <input type="text" id="cmdInput" placeholder="Команда: статы, помощь" autocomplete="off">
+        <input type="text" id="cmdInput" placeholder="статы, помощь" autocomplete="off">
         <button id="sendBtn">➤</button>
     </div>
 </div>
 
 <script>
-    // ============== SUPABASE НАСТРОЙКИ (ВАШИ ДАННЫЕ) ==============
+    // ============== ВАШИ ДАННЫЕ SUPABASE ==============
     const SUPABASE_URL = "https://tmjqafqecjpizawdruzq.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtanFhZnFlY2pwaXphd2RydXpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4OTk2OTYsImV4cCI6MjA5NTQ3NTY5Nn0.8K7i5QEbjYWSvqw78P8RSR_abYM8uCRZbvC9Hp12bac";
     
-    let supabase = null;
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
     let currentUser = null;
+    let inBattle = false;
+    let currentEnemy = null;
     
-    // Инициализация
-    try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log("Supabase готов");
-    } catch(e) {
-        alert("Ошибка подключения к Supabase: " + e.message);
-    }
+    // Игрок
+    let player = {
+        class: null,
+        level: 1,
+        xp: 0,
+        gold: 800,
+        glory: 0,
+        hp: 200,
+        maxHp: 200,
+        weapon: { name: "Ржавый меч", dmg: 12 },
+        stats: { kills: 0 }
+    };
     
-    // ============== ИГРОВЫЕ ДАННЫЕ ==============
-    const BOSSES = [
-        { name: "Лесной гоблин", hp: 160, atk: 28, gold: 90, xp: 45, glory: 5 },
-        { name: "Каменный тролль", hp: 290, atk: 42, gold: 150, xp: 80, glory: 8 },
-        { name: "Теневой рыцарь", hp: 450, atk: 65, gold: 240, xp: 130, glory: 12 },
-        { name: "Огненный элементаль", hp: 680, atk: 88, gold: 370, xp: 190, glory: 18 }
+    // Боссы
+    const bosses = [
+        { name: "Гоблин", hp: 160, atk: 28, gold: 90, xp: 45, glory: 5 },
+        { name: "Тролль", hp: 290, atk: 42, gold: 150, xp: 80, glory: 8 },
+        { name: "Рыцарь", hp: 450, atk: 65, gold: 240, xp: 130, glory: 12 }
     ];
     
-    const WEAPONS = {
+    // Оружие
+    const weapons = {
         warrior: [
             { name: "Ржавый меч", dmg: 12, cost: 0 },
-            { name: "Стальной клинок", dmg: 22, cost: 400 },
-            { name: "Пламенный топор", dmg: 42, cost: 1350 }
+            { name: "Стальной меч", dmg: 25, cost: 500 },
+            { name: "Пламенный меч", dmg: 45, cost: 1500 }
         ],
         mage: [
             { name: "Деревянный посох", dmg: 10, cost: 0 },
-            { name: "Жезл огня", dmg: 20, cost: 400 },
-            { name: "Посох луны", dmg: 50, cost: 1950 }
+            { name: "Магический посох", dmg: 22, cost: 500 },
+            { name: "Посох огня", dmg: 40, cost: 1500 }
         ],
         archer: [
             { name: "Короткий лук", dmg: 11, cost: 0 },
-            { name: "Огненный лук", dmg: 31, cost: 850 },
-            { name: "Лук смерти", dmg: 63, cost: 2650 }
+            { name: "Длинный лук", dmg: 24, cost: 500 },
+            { name: "Огненный лук", dmg: 42, cost: 1500 }
         ]
     };
     
-    let player = {
-        class: null, level: 1, xp: 0, gold: 800, glory: 0, hp: 200, maxHp: 200,
-        weapon: null, inBattle: false, currentEnemy: null,
-        stats: { totalKills: 0, totalGoldEarned: 0 }
-    };
-    
-    // ============== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==============
-    function addMsg(msg, type = "system") {
+    function addMsg(text, type = "system") {
         let chat = document.getElementById("chatArea");
         let div = document.createElement("div");
         div.className = `msg ${type}`;
-        div.innerHTML = msg;
+        div.innerText = text;
         chat.appendChild(div);
         chat.scrollTop = chat.scrollHeight;
     }
@@ -263,13 +249,11 @@
         document.getElementById("gold").innerText = Math.floor(player.gold);
         document.getElementById("glory").innerText = Math.floor(player.glory);
         
-        let dmg = player.weapon ? player.weapon.dmg + Math.floor(player.level * 1.2) : 10;
-        
-        if (player.inBattle && player.currentEnemy) {
+        if (inBattle && currentEnemy) {
             document.getElementById("enemyPanel").style.display = "flex";
-            document.getElementById("enemyName").innerText = player.currentEnemy.name;
-            document.getElementById("enemyHp").innerText = Math.max(0, Math.floor(player.currentEnemy.hp));
-            document.getElementById("enemyAtk").innerText = player.currentEnemy.atk;
+            document.getElementById("enemyName").innerText = currentEnemy.name;
+            document.getElementById("enemyHp").innerText = Math.max(0, Math.floor(currentEnemy.hp));
+            document.getElementById("enemyAtk").innerText = currentEnemy.atk;
         } else {
             document.getElementById("enemyPanel").style.display = "none";
         }
@@ -282,133 +266,103 @@
     }
     
     function getDamage() {
-        let base = player.weapon ? player.weapon.dmg : 10;
-        return base + Math.floor(player.level * 1.2) + Math.floor(Math.random() * 12);
+        let dmg = player.weapon.dmg + Math.floor(player.level * 1.2);
+        return dmg + Math.floor(Math.random() * 12);
     }
     
     function attack() {
-        if (!player.inBattle || !player.currentEnemy) {
-            addMsg("Нет боя!", "system");
+        if (!inBattle || !currentEnemy) {
+            addMsg("Нет боя! Выберите босса в меню БОССЫ");
             return;
         }
+        
         let dmg = getDamage();
-        player.currentEnemy.hp -= dmg;
-        addMsg(`⚔️ Урон ${dmg}. У ${player.currentEnemy.name} осталось ${Math.max(0, Math.floor(player.currentEnemy.hp))} HP.`);
+        currentEnemy.hp -= dmg;
+        addMsg(`⚔️ Урон ${dmg}. У ${currentEnemy.name} осталось ${Math.max(0, Math.floor(currentEnemy.hp))} HP.`);
         
-        if (player.currentEnemy.hp <= 0) {
-            defeatEnemy();
-        } else {
-            enemyAttack();
-        }
-        updateUI();
-        saveToCloud();
-    }
-    
-    function defeatEnemy() {
-        let goldGain = player.currentEnemy.gold + Math.floor(Math.random() * 60);
-        let xpGain = player.currentEnemy.xp + player.level * 4;
-        let gloryGain = player.currentEnemy.glory || 5;
-        
-        player.gold += goldGain;
-        player.xp += xpGain;
-        player.glory += gloryGain;
-        player.stats.totalKills++;
-        player.stats.totalGoldEarned += goldGain;
-        
-        addMsg(`🏆 Победа! +${goldGain}💰 +${xpGain}✨ опыта +${gloryGain}✨ славы!`, "achievement");
-        
-        let need = 100 + player.level * 12;
-        if (player.xp >= need) {
-            player.level++;
-            player.xp = 0;
-            player.maxHp += 20;
-            player.hp = player.maxHp;
-            addMsg(`✨ УРОВЕНЬ ${player.level}!`, "achievement");
-        }
-        
-        player.inBattle = false;
-        player.currentEnemy = null;
-        updateUI();
-        saveToCloud();
-        updateLeaderboard();
-    }
-    
-    function enemyAttack() {
-        if (!player.inBattle || !player.currentEnemy) return;
-        let dmg = Math.max(6, player.currentEnemy.atk + Math.floor(Math.random() * 14) - Math.floor(player.level * 0.3));
-        player.hp -= dmg;
-        addMsg(`😖 ${player.currentEnemy.name} атакует! -${dmg} HP. Осталось ${Math.floor(player.hp)}/${player.maxHp}`);
-        
-        if (player.hp <= 0) {
-            addMsg(`💀 Вы пали... Потеря 20% золота и славы.`);
-            player.gold = Math.floor(player.gold * 0.8);
-            player.glory = Math.floor(player.glory * 0.8);
-            player.hp = player.maxHp;
-            player.inBattle = false;
-            player.currentEnemy = null;
+        if (currentEnemy.hp <= 0) {
+            let goldGain = currentEnemy.gold + Math.floor(Math.random() * 50);
+            let xpGain = currentEnemy.xp + player.level * 4;
+            let gloryGain = currentEnemy.glory || 5;
+            
+            player.gold += goldGain;
+            player.xp += xpGain;
+            player.glory += gloryGain;
+            player.stats.kills++;
+            
+            addMsg(`🏆 ПОБЕДА! +${goldGain}💰 +${xpGain}✨ +${gloryGain}⭐`, "achievement");
+            
+            let need = 100 + player.level * 12;
+            if (player.xp >= need) {
+                player.level++;
+                player.xp = 0;
+                player.maxHp += 20;
+                player.hp = player.maxHp;
+                addMsg(`✨ УРОВЕНЬ ${player.level}!`, "achievement");
+            }
+            
+            inBattle = false;
+            currentEnemy = null;
+            updateUI();
             saveToCloud();
+            updateLeaderboard();
+        } else {
+            let enemyDmg = Math.max(6, currentEnemy.atk + Math.floor(Math.random() * 14) - Math.floor(player.level * 0.3));
+            player.hp -= enemyDmg;
+            addMsg(`😖 ${currentEnemy.name} атакует! -${enemyDmg} HP. У вас ${Math.floor(player.hp)}/${player.maxHp}`);
+            
+            if (player.hp <= 0) {
+                addMsg(`💀 ВЫ ПАЛИ! Потеря 20% ресурсов.`, "system");
+                player.gold = Math.floor(player.gold * 0.8);
+                player.glory = Math.floor(player.glory * 0.8);
+                player.hp = player.maxHp;
+                inBattle = false;
+                currentEnemy = null;
+                saveToCloud();
+            }
+            updateUI();
         }
-        updateUI();
-    }
-    
-    function startBattle(enemy) {
-        if (player.inBattle) {
-            addMsg("Вы уже в бою!");
-            return;
-        }
-        player.currentEnemy = JSON.parse(JSON.stringify(enemy));
-        player.inBattle = true;
-        addMsg(`⚔️ Бой с ${enemy.name} (❤️ ${enemy.hp} | ⚔️ ${enemy.atk})`);
-        updateUI();
     }
     
     function heal() {
-        let cost = 45;
+        let cost = 50;
         if (player.gold >= cost && player.hp < player.maxHp) {
             player.gold -= cost;
-            player.hp = Math.min(player.maxHp, player.hp + 40 + player.level);
-            addMsg(`💚 Лечение +${40 + player.level} HP. -${cost}💰.`);
+            player.hp = Math.min(player.maxHp, player.hp + 50 + player.level);
+            addMsg(`💚 Лечение +${50 + player.level} HP. -${cost}💰`);
             updateUI();
             saveToCloud();
+        } else if (player.hp >= player.maxHp) {
+            addMsg(`❤️ HP уже полное!`);
         } else {
-            addMsg(`❌ Не хватает золота или HP полное.`);
+            addMsg(`❌ Не хватает золота! Нужно ${cost}💰`);
         }
     }
     
-    function setClass(className) {
-        if (player.class) return;
-        player.class = className;
-        player.weapon = WEAPONS[className][0];
-        
-        if (className === "warrior") {
-            player.maxHp = 260;
-            player.hp = 260;
-        } else if (className === "mage") {
-            player.maxHp = 180;
-            player.hp = 180;
-        } else {
-            player.maxHp = 210;
-            player.hp = 210;
+    function startBattle(boss) {
+        if (inBattle) {
+            addMsg("Вы уже в бою!");
+            return;
         }
-        
-        addMsg(`🎭 Вы выбрали ${className.toUpperCase()}! Оружие: ${player.weapon.name} (+${player.weapon.dmg} урона)`);
+        currentEnemy = JSON.parse(JSON.stringify(boss));
+        inBattle = true;
+        addMsg(`⚔️ БОЙ: ${boss.name} (❤️${boss.hp} ⚔️${boss.atk})`);
         updateUI();
-        saveToCloud();
     }
     
-    function showQuests() {
+    function showBosses() {
         let panel = document.getElementById("dynamicPanel");
-        panel.innerHTML = `<strong>📜 КВЕСТЫ</strong><div>`;
-        BOSSES.forEach((b, i) => {
-            panel.innerHTML += `<div class="select-item" data-idx="${i}">${b.name} (❤️${b.hp} ⚔️${b.atk}) +${b.glory}✨</div>`;
+        panel.innerHTML = `<strong>📜 ВЫБЕРИ БОССА</strong><div>`;
+        bosses.forEach((b, i) => {
+            panel.innerHTML += `<div class="select-item" data-boss="${i}">${b.name} (❤️${b.hp} ⚔️${b.atk}) +${b.glory}⭐ +${b.gold}💰</div>`;
         });
-        panel.innerHTML += `</div><button id="closePanel">Закрыть</button>`;
+        panel.innerHTML += `<button id="closePanel">Закрыть</button>`;
         panel.classList.remove("hidden");
         
-        document.querySelectorAll(".select-item").forEach(el => {
+        document.querySelectorAll("[data-boss]").forEach(el => {
             el.onclick = () => {
-                let idx = parseInt(el.dataset.idx);
-                startBattle({ ...BOSSES[idx] });
+                let idx = parseInt(el.dataset.boss);
+                startBattle(bosses[idx]);
                 panel.classList.add("hidden");
             };
         });
@@ -417,231 +371,180 @@
     
     function showShop() {
         if (!player.class) {
-            addMsg("Сначала выберите класс!");
+            addMsg("Сначала выберите класс при регистрации!");
             return;
         }
-        let items = WEAPONS[player.class];
+        let items = weapons[player.class];
         let panel = document.getElementById("dynamicPanel");
         panel.innerHTML = `<strong>🏪 МАГАЗИН (${player.class})</strong><div>`;
         items.forEach((w, i) => {
-            panel.innerHTML += `<div class="shop-item" data-idx="${i}">${w.name} +${w.dmg} - ${w.cost}💰</div>`;
+            let price = w.cost === 0 ? "Бесплатно" : `${w.cost}💰`;
+            panel.innerHTML += `<div class="select-item" data-weapon="${i}">${w.name} +${w.dmg} урона - ${price}</div>`;
         });
-        panel.innerHTML += `</div><button id="closePanel">Закрыть</button>`;
+        panel.innerHTML += `<button id="closePanel">Закрыть</button>`;
         panel.classList.remove("hidden");
         
-        document.querySelectorAll(".shop-item").forEach(el => {
+        document.querySelectorAll("[data-weapon]").forEach(el => {
             el.onclick = () => {
-                let idx = parseInt(el.dataset.idx);
+                let idx = parseInt(el.dataset.weapon);
                 let w = items[idx];
                 if (w.cost === 0) {
-                    addMsg("Стартовое оружие");
-                    return;
-                }
-                if (player.gold >= w.cost) {
+                    player.weapon = { name: w.name, dmg: w.dmg };
+                    addMsg(`✅ Выбрано стартовое оружие: ${w.name}`);
+                } else if (player.gold >= w.cost) {
                     player.gold -= w.cost;
                     player.weapon = { name: w.name, dmg: w.dmg };
-                    addMsg(`✅ Куплено: ${w.name}!`);
-                    updateUI();
-                    saveToCloud();
-                    panel.classList.add("hidden");
+                    addMsg(`✅ Куплено: ${w.name}! Урон +${w.dmg}`);
                 } else {
-                    addMsg(`❌ Не хватает золота!`);
+                    addMsg(`❌ Не хватает золота! Нужно ${w.cost}💰`);
                 }
+                updateUI();
+                saveToCloud();
+                panel.classList.add("hidden");
             };
         });
         document.getElementById("closePanel").onclick = () => panel.classList.add("hidden");
     }
     
-    // ============== РАБОТА С SUPABASE ==============
+    // ============== SUPABASE ФУНКЦИИ ==============
     
-    async function register(username, password) {
-        if (!supabase) {
-            addMsg("❌ Ошибка подключения к серверу");
-            return false;
-        }
-        if (username.length < 3) {
-            addMsg("❌ Имя минимум 3 символа");
-            return false;
-        }
-        if (password.length < 4) {
-            addMsg("❌ Пароль минимум 4 символа");
-            return false;
-        }
+    async function register() {
+        let name = prompt("Введите имя (3-20 символов):");
+        if (!name || name.length < 3) { addMsg("❌ Имя минимум 3 символа"); return; }
+        
+        let pass = prompt("Введите пароль (минимум 4 символа):");
+        if (!pass || pass.length < 4) { addMsg("❌ Пароль минимум 4 символа"); return; }
         
         try {
-            const hash = btoa(password);
-            const { error } = await supabase
-                .from("accounts")
-                .insert({ username: username, password_hash: hash });
+            let hash = btoa(pass);
+            let { error } = await supabase.from("accounts").insert({ username: name, password_hash: hash });
             
             if (error) {
-                if (error.code === "23505") {
-                    addMsg("❌ Имя уже занято!");
-                } else {
-                    addMsg("❌ Ошибка: " + error.message);
-                }
-                return false;
+                if (error.code === "23505") addMsg("❌ Имя уже занято!");
+                else addMsg("❌ Ошибка: " + error.message);
+                return;
             }
             
             addMsg("✅ Регистрация успешна! Теперь войдите.", "achievement");
-            return true;
         } catch(e) {
             addMsg("❌ Ошибка: " + e.message);
-            return false;
         }
     }
     
-    async function login(username, password) {
-        if (!supabase) {
-            addMsg("❌ Ошибка подключения к серверу");
-            return false;
-        }
+    async function login() {
+        let name = prompt("Имя:");
+        if (!name) return;
+        let pass = prompt("Пароль:");
+        if (!pass) return;
         
         try {
-            const hash = btoa(password);
-            const { data, error } = await supabase
+            let hash = btoa(pass);
+            let { data, error } = await supabase
                 .from("accounts")
                 .select("id, username")
-                .eq("username", username)
+                .eq("username", name)
                 .eq("password_hash", hash)
-                .single();
+                .maybeSingle();
             
             if (error || !data) {
                 addMsg("❌ Неверное имя или пароль");
-                return false;
+                return;
             }
             
             currentUser = { id: data.id, username: data.username };
-            localStorage.setItem("saved_username", username);
-            localStorage.setItem("saved_password", btoa(password));
+            localStorage.setItem("userId", currentUser.id);
+            localStorage.setItem("username", currentUser.username);
             
-            addMsg(`✅ Добро пожаловать, ${username}!`, "achievement");
-            await loadGameFromCloud();
+            addMsg(`✅ Добро пожаловать, ${currentUser.username}!`, "achievement");
+            await loadGame();
             updateUI();
-            return true;
         } catch(e) {
             addMsg("❌ Ошибка: " + e.message);
-            return false;
         }
     }
     
     async function logout() {
         currentUser = null;
-        localStorage.removeItem("saved_username");
-        localStorage.removeItem("saved_password");
-        
+        localStorage.removeItem("userId");
+        localStorage.removeItem("username");
         player = {
             class: null, level: 1, xp: 0, gold: 800, glory: 0, hp: 200, maxHp: 200,
-            weapon: null, inBattle: false, currentEnemy: null,
-            stats: { totalKills: 0, totalGoldEarned: 0 }
+            weapon: { name: "Ржавый меч", dmg: 12 }, stats: { kills: 0 }
         };
-        
-        addMsg("👋 Вы вышли из аккаунта.");
+        inBattle = false;
+        currentEnemy = null;
+        addMsg("👋 Вы вышли");
         updateUI();
-        showLoginPanel();
+        showClassSelector();
     }
     
     async function saveToCloud() {
-        if (!currentUser || !supabase) return;
-        
+        if (!currentUser) return;
         try {
-            const saveData = {
-                class: player.class,
-                level: player.level,
-                xp: player.xp,
-                gold: player.gold,
-                glory: player.glory,
-                hp: player.hp,
-                maxHp: player.maxHp,
-                weapon: player.weapon,
-                stats: player.stats
-            };
-            
-            await supabase
-                .from("game_saves")
-                .upsert({
-                    user_id: currentUser.id,
-                    save_data: saveData,
-                    updated_at: new Date().toISOString()
-                });
-            
-            console.log("Сохранено");
-        } catch(e) {
-            console.warn("Ошибка сохранения:", e);
-        }
+            await supabase.from("game_saves").upsert({
+                user_id: currentUser.id,
+                save_data: {
+                    class: player.class,
+                    level: player.level,
+                    xp: player.xp,
+                    gold: player.gold,
+                    glory: player.glory,
+                    hp: player.hp,
+                    maxHp: player.maxHp,
+                    weapon: player.weapon,
+                    stats: player.stats
+                }
+            });
+        } catch(e) { console.log(e); }
     }
     
-    async function loadGameFromCloud() {
-        if (!currentUser || !supabase) return false;
-        
+    async function loadGame() {
+        if (!currentUser) return;
         try {
-            const { data, error } = await supabase
+            let { data } = await supabase
                 .from("game_saves")
                 .select("save_data")
                 .eq("user_id", currentUser.id)
                 .maybeSingle();
             
-            if (error) throw error;
-            
-            if (data && data.save_data) {
-                const d = data.save_data;
-                player.class = d.class || null;
+            if (data?.save_data) {
+                let d = data.save_data;
+                player.class = d.class;
                 player.level = d.level || 1;
                 player.xp = d.xp || 0;
                 player.gold = d.gold || 800;
                 player.glory = d.glory || 0;
                 player.hp = d.hp || 200;
                 player.maxHp = d.maxHp || 200;
-                player.weapon = d.weapon || null;
-                player.stats = d.stats || { totalKills: 0, totalGoldEarned: 0 };
-                
+                player.weapon = d.weapon || { name: "Ржавый меч", dmg: 12 };
+                player.stats = d.stats || { kills: 0 };
                 addMsg(`☁️ Прогресс загружен! Уровень ${player.level}`, "achievement");
                 updateUI();
-                
-                if (!player.class) {
-                    showClassSelector();
-                }
-                return true;
             } else {
-                addMsg("📀 Новый аккаунт! Выберите класс.", "system");
                 showClassSelector();
-                return false;
             }
-        } catch(e) {
-            console.warn("Ошибка загрузки:", e);
-            return false;
-        }
+        } catch(e) { console.log(e); }
     }
     
     async function updateLeaderboard() {
-        if (!supabase || !currentUser) return;
-        
+        if (!currentUser) return;
         try {
-            await supabase
-                .from("leaderboard")
-                .upsert({
-                    player_name: currentUser.username,
-                    level: player.level,
-                    glory: Math.floor(player.glory),
-                    total_kills: player.stats.totalKills
-                });
-        } catch(e) {
-            console.warn(e);
-        }
+            await supabase.from("leaderboard").upsert({
+                player_name: currentUser.username,
+                level: player.level,
+                glory: Math.floor(player.glory),
+                total_kills: player.stats.kills
+            });
+        } catch(e) {}
     }
     
     async function showLeaderboard() {
-        if (!supabase) {
-            addMsg("❌ Рейтинг недоступен");
-            return;
-        }
-        
         let panel = document.getElementById("dynamicPanel");
         panel.innerHTML = `<div>🏆 ЗАГРУЗКА...</div>`;
         panel.classList.remove("hidden");
         
         try {
-            const { data } = await supabase
+            let { data } = await supabase
                 .from("leaderboard")
                 .select("*")
                 .order("glory", { ascending: false })
@@ -652,7 +555,7 @@
             } else {
                 panel.innerHTML = `<strong>🏆 ТОП-20 🏆</strong><div>`;
                 data.forEach((p, i) => {
-                    panel.innerHTML += `<div class="select-item">${i+1}. ${p.player_name} | Ур.${p.level} | ✨${p.glory}</div>`;
+                    panel.innerHTML += `<div class="select-item">${i+1}. ${p.player_name} | Ур.${p.level} | ✨${p.glory} | 💀${p.total_kills}</div>`;
                 });
                 panel.innerHTML += `</div><button id="closePanel">Закрыть</button>`;
             }
@@ -675,112 +578,86 @@
         panel.classList.remove("hidden");
         
         document.getElementById("classWar").onclick = () => {
-            setClass("warrior");
+            player.class = "warrior";
+            player.weapon = weapons.warrior[0];
+            player.maxHp = 260;
+            player.hp = 260;
+            addMsg(`Вы выбрали ВОИНА! Здоровье: 260, оружие: ${player.weapon.name}`);
+            updateUI();
+            saveToCloud();
             panel.classList.add("hidden");
         };
         document.getElementById("classMage").onclick = () => {
-            setClass("mage");
+            player.class = "mage";
+            player.weapon = weapons.mage[0];
+            player.maxHp = 180;
+            player.hp = 180;
+            addMsg(`Вы выбрали МАГА! Здоровье: 180, оружие: ${player.weapon.name}`);
+            updateUI();
+            saveToCloud();
             panel.classList.add("hidden");
         };
         document.getElementById("classArch").onclick = () => {
-            setClass("archer");
+            player.class = "archer";
+            player.weapon = weapons.archer[0];
+            player.maxHp = 210;
+            player.hp = 210;
+            addMsg(`Вы выбрали ЛУЧНИКА! Здоровье: 210, оружие: ${player.weapon.name}`);
+            updateUI();
+            saveToCloud();
             panel.classList.add("hidden");
         };
         document.getElementById("closePanel").onclick = () => panel.classList.add("hidden");
     }
     
-    function showLoginPanel() {
-        let panel = document.getElementById("dynamicPanel");
-        panel.innerHTML = `
-            <div class="login-panel">
-                <h3>🔐 ВХОД / РЕГИСТРАЦИЯ</h3>
-                <input type="text" id="loginUsername" placeholder="Имя (3-20 символов)">
-                <input type="password" id="loginPassword" placeholder="Пароль (мин. 4)">
-                <button id="doLoginBtn">🔓 ВОЙТИ</button>
-                <button id="doRegisterBtn">📝 РЕГИСТРАЦИЯ</button>
-                <button id="closePanel">Закрыть</button>
-            </div>
-        `;
-        panel.classList.remove("hidden");
-        
-        document.getElementById("doLoginBtn").onclick = async () => {
-            let name = document.getElementById("loginUsername").value.trim();
-            let pass = document.getElementById("loginPassword").value;
-            if (name && pass) {
-                await login(name, pass);
-                panel.classList.add("hidden");
-            } else {
-                addMsg("❌ Введите имя и пароль");
-            }
-        };
-        
-        document.getElementById("doRegisterBtn").onclick = async () => {
-            let name = document.getElementById("loginUsername").value.trim();
-            let pass = document.getElementById("loginPassword").value;
-            if (name && pass) {
-                await register(name, pass);
-                panel.classList.add("hidden");
-            } else {
-                addMsg("❌ Введите имя и пароль");
-            }
-        };
-        
-        document.getElementById("closePanel").onclick = () => panel.classList.add("hidden");
-    }
-    
-    async function autoLogin() {
-        let savedName = localStorage.getItem("saved_username");
-        let savedPass = localStorage.getItem("saved_password");
-        if (savedName && savedPass) {
-            await login(savedName, atob(savedPass));
-        } else {
-            showLoginPanel();
-        }
-    }
-    
-    function processCommand(cmd) {
-        let c = cmd.toLowerCase().trim();
-        if (c === "статы") {
-            addMsg(`Ур.${player.level} ❤️${Math.floor(player.hp)}/${player.maxHp} 🪙${Math.floor(player.gold)} ✨${Math.floor(player.glory)}`);
-        } else if (c === "помощь") {
-            addMsg(`Команды: статы, очистить | Кнопки: КВЕСТЫ, БОССЫ, АТАКА, ЛЕЧИТЬ, МАГАЗИН`);
-        } else if (c === "очистить") {
-            document.getElementById("chatArea").innerHTML = '<div class="msg system">🌀 Чат очищен.</div>';
-        } else {
-            addMsg(`❓ Неизвестно. Введите "помощь".`);
-        }
-    }
-    
-    // ============== ПРИВЯЗКА КНОПОК ==============
-    document.getElementById("loginBtn").onclick = showLoginPanel;
-    document.getElementById("registerBtn").onclick = showLoginPanel;
+    // ============== ИНИЦИАЛИЗАЦИЯ ==============
+    document.getElementById("loginBtn").onclick = login;
+    document.getElementById("registerBtn").onclick = register;
     document.getElementById("logoutBtn").onclick = logout;
-    document.getElementById("questBtn").onclick = () => { if(player.class) showQuests(); else addMsg("Сначала выберите класс!"); };
-    document.getElementById("bossBtn").onclick = () => { if(player.class) showQuests(); else addMsg("Сначала выберите класс!"); };
     document.getElementById("attackBtn").onclick = attack;
     document.getElementById("healBtn").onclick = heal;
     document.getElementById("shopBtn").onclick = showShop;
+    document.getElementById("questBtn").onclick = showBosses;
     document.getElementById("leaderboardBtn").onclick = showLeaderboard;
     document.getElementById("sendBtn").onclick = () => {
-        let inp = document.getElementById("cmdInput");
-        processCommand(inp.value);
-        inp.value = "";
+        let cmd = document.getElementById("cmdInput").value;
+        if (cmd === "статы") addMsg(`Ур.${player.level} ❤️${Math.floor(player.hp)}/${player.maxHp} 🪙${Math.floor(player.gold)} ✨${Math.floor(player.glory)}`);
+        else if (cmd === "помощь") addMsg(`Кнопки: ВОЙТИ, РЕГИСТРАЦИЯ, АТАКА, ЛЕЧИТЬ, МАГАЗИН, БОССЫ, РЕЙТИНГ`);
+        else addMsg(`❓ Неизвестно. "помощь" для списка`);
+        document.getElementById("cmdInput").value = "";
     };
     
-    // ============== ЗАПУСК ==============
-    autoLogin();
+    // Автовход
+    let savedId = localStorage.getItem("userId");
+    let savedName = localStorage.getItem("username");
+    if (savedId && savedName) {
+        currentUser = { id: parseInt(savedId), username: savedName };
+        loadGame();
+    } else {
+        showClassSelector();
+    }
     
-    // Атака врага каждые 4 секунды
+    // Атака врага
     setInterval(() => {
-        if (player.inBattle && player.currentEnemy && player.currentEnemy.hp > 0 && player.hp > 0) {
-            enemyAttack();
+        if (inBattle && currentEnemy && currentEnemy.hp > 0 && player.hp > 0) {
+            let enemyDmg = Math.max(6, currentEnemy.atk + Math.floor(Math.random() * 14) - Math.floor(player.level * 0.3));
+            player.hp -= enemyDmg;
+            addMsg(`😖 ${currentEnemy.name} атакует! -${enemyDmg} HP. У вас ${Math.floor(player.hp)}/${player.maxHp}`);
+            if (player.hp <= 0) {
+                addMsg(`💀 ВЫ ПАЛИ!`, "system");
+                player.gold = Math.floor(player.gold * 0.8);
+                player.glory = Math.floor(player.glory * 0.8);
+                player.hp = player.maxHp;
+                inBattle = false;
+                currentEnemy = null;
+                saveToCloud();
+            }
+            updateUI();
         }
     }, 4000);
     
-    // Автосохранение каждые 30 секунд
-    setInterval(() => {
-        saveToCloud();
-    }, 30000);
+    // Автосохранение
+    setInterval(() => saveToCloud(), 30000);
 </script>
 </body>
 </html>
