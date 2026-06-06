@@ -198,7 +198,7 @@
         <div>⚡ УРН <span id="dmgStat">20</span></div>
         <div>🔑 <span id="keyCount">0</span></div>
         <div class="player-name" id="playerNameDisplay">Не авторизован</div>
-        <div class="version-badge" id="versionDisplay">v0.5.0</div>
+        <div class="version-badge" id="versionDisplay">v0.6.0</div>
     </div>
     <div class="enemy-panel" id="enemyPanel" style="display: none;">
         <span>👾 <span id="enemyName">Гоблин</span></span>
@@ -247,10 +247,9 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtanFhZnFlY2pwaXphd2RydXpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4OTk2OTYsImV4cCI6MjA5NTQ3NTY5Nn0.8K7i5QEbjYWSvqw78P8RSR_abYM8uCRZbvC9Hp12bac";
     
     let supabase = null;
-    let currentUser = null; // { id, email, username }
+    let currentUser = null;
     let autoSaveInterval = null;
     
-    // Инициализация Supabase
     try {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         console.log("✅ Supabase инициализирован");
@@ -258,10 +257,10 @@
         console.warn("❌ Supabase ошибка:", e);
     }
     
-    const GAME_VERSION = "0.5.0";
+    const GAME_VERSION = "0.6.0";
     document.getElementById("versionDisplay").innerText = "v" + GAME_VERSION;
     
-    // ======================== // ОСНОВНЫЕ ДАННЫЕ ИГРЫ // ========================
+    // ======================== // ИГРОВЫЕ ДАННЫЕ // ========================
     const QUESTS = [
         { name: "Лесной гоблин", hp: 160, atk: 28, gold: 90, xp: 45, glory: 5, key: "Медный ключ", keyChance: 0.6 },
         { name: "Каменный тролль", hp: 290, atk: 42, gold: 150, xp: 80, glory: 8, key: "Серебряный ключ", keyChance: 0.55 },
@@ -301,25 +300,25 @@
     
     const WEAPONS = {
         warrior: [
-            { name: "⚔️ Ржавый меч", dmg: 12, cost: 0, desc: "Простейший меч новичка." },
-            { name: "🛡️ Стальной клинок", dmg: 22, cost: 400, desc: "Надёжная сталь." },
-            { name: "🗡️ Меч ветра", dmg: 32, cost: 850, desc: "Лёгкий как ветер." },
-            { name: "🔥 Пламенный топор", dmg: 42, cost: 1350, desc: "Пылает огнём." },
-            { name: "❄️ Ледяной рассекатель", dmg: 52, cost: 1950, desc: "Оставляет иней на ранах." }
+            { name: "⚔️ Ржавый меч", dmg: 12, cost: 0 },
+            { name: "🛡️ Стальной клинок", dmg: 22, cost: 400 },
+            { name: "🗡️ Меч ветра", dmg: 32, cost: 850 },
+            { name: "🔥 Пламенный топор", dmg: 42, cost: 1350 },
+            { name: "❄️ Ледяной рассекатель", dmg: 52, cost: 1950 }
         ],
         mage: [
-            { name: "🔮 Деревянный посох", dmg: 10, cost: 0, desc: "Обычная палка с кристаллом." },
-            { name: "🔥 Жезл огня", dmg: 20, cost: 400, desc: "Искрится пламенем." },
-            { name: "❄️ Ледяная сфера", dmg: 30, cost: 850, desc: "Внутри вечная мерзлота." },
-            { name: "⚡ Грозовой жезл", dmg: 40, cost: 1350, desc: "Притягивает молнии." },
-            { name: "🌙 Посох луны", dmg: 50, cost: 1950, desc: "Питается лунным светом." }
+            { name: "🔮 Деревянный посох", dmg: 10, cost: 0 },
+            { name: "🔥 Жезл огня", dmg: 20, cost: 400 },
+            { name: "❄️ Ледяная сфера", dmg: 30, cost: 850 },
+            { name: "⚡ Грозовой жезл", dmg: 40, cost: 1350 },
+            { name: "🌙 Посох луны", dmg: 50, cost: 1950 }
         ],
         archer: [
-            { name: "🏹 Короткий лук", dmg: 11, cost: 0, desc: "Лук охотника." },
-            { name: "🌪️ Ветреный арбалет", dmg: 21, cost: 400, desc: "Стреляет с ураганной скоростью." },
-            { name: "🔥 Огненный лук", dmg: 31, cost: 850, desc: "Зажигает стрелы." },
-            { name: "❄️ Ледяная стрела", dmg: 41, cost: 1350, desc: "Замороженные наконечники." },
-            { name: "⚡ Громовой арбалет", dmg: 51, cost: 1950, desc: "Электрические разряды." }
+            { name: "🏹 Короткий лук", dmg: 11, cost: 0 },
+            { name: "🌪️ Ветреный арбалет", dmg: 21, cost: 400 },
+            { name: "🔥 Огненный лук", dmg: 31, cost: 850 },
+            { name: "❄️ Ледяная стрела", dmg: 41, cost: 1350 },
+            { name: "⚡ Громовой арбалет", dmg: 51, cost: 1950 }
         ]
     };
     
@@ -331,7 +330,6 @@
         usedPromoCodes: [], stats: { totalKills: 0, eliteKills: 0, totalCrafts: 0, totalGoldEarned: 0 }
     };
     
-    // ======================== // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ // ========================
     function addSys(msg, type = "system") { 
         let chat = document.getElementById("chatArea"); 
         let d = document.createElement("div"); 
@@ -340,11 +338,6 @@
         chat.appendChild(d); 
         chat.scrollTop = chat.scrollHeight; 
         if (chat.children.length > 200) chat.removeChild(chat.children[0]);
-    }
-    
-    function clearChat() {
-        let chat = document.getElementById("chatArea");
-        chat.innerHTML = '<div class="msg system">🌀 Чат очищен.</div>';
     }
     
     function updateUI() {
@@ -629,29 +622,34 @@
         autoSaveToCloud();
     }
     
-    // ======================== // СИСТЕМА АККАУНТОВ // ========================
+    // ======================== // АККАУНТЫ (простая таблица) // ========================
     
     async function register(username, password) {
-        if (!supabase) { addSys("❌ Ошибка подключения к серверу"); return false; }
-        if (username.length < 3 || username.length > 20) { addSys("❌ Имя от 3 до 20 символов"); return false; }
+        if (!supabase) { addSys("❌ Ошибка подключения"); return false; }
+        if (username.length < 3 || username.length > 20) { addSys("❌ Имя 3-20 символов"); return false; }
         if (password.length < 4) { addSys("❌ Пароль минимум 4 символа"); return false; }
         
         try {
-            // Регистрация через Supabase Auth
-            const { data: authData, error: authError } = await supabase.auth.signUp({
-                email: `${username}@game.local`,
-                password: password,
-                options: { data: { username: username } }
-            });
+            // Проверяем, существует ли пользователь
+            const { data: existing } = await supabase
+                .from("accounts")
+                .select("username")
+                .eq("username", username)
+                .maybeSingle();
             
-            if (authError) throw authError;
+            if (existing) {
+                addSys("❌ Имя уже занято!");
+                return false;
+            }
             
-            // Создаём профиль
-            const { error: profileError } = await supabase
-                .from("profiles")
-                .insert({ id: authData.user.id, username: username, created_at: new Date() });
+            // Простое хеширование (для демо)
+            const simpleHash = btoa(password);
             
-            if (profileError) console.warn("Profile error:", profileError);
+            const { error } = await supabase
+                .from("accounts")
+                .insert({ username: username, password_hash: simpleHash, created_at: new Date() });
+            
+            if (error) throw error;
             
             addSys(`✅ Регистрация успешна! Теперь войдите.`, "achievement");
             return true;
@@ -662,37 +660,43 @@
     }
     
     async function login(username, password) {
-        if (!supabase) { addSys("❌ Ошибка подключения к серверу"); return false; }
+        if (!supabase) { addSys("❌ Ошибка подключения"); return false; }
         
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: `${username}@game.local`,
-                password: password
-            });
+            const simpleHash = btoa(password);
+            
+            const { data, error } = await supabase
+                .from("accounts")
+                .select("*")
+                .eq("username", username)
+                .eq("password_hash", simpleHash)
+                .maybeSingle();
             
             if (error) throw error;
+            if (!data) {
+                addSys("❌ Неверное имя или пароль");
+                return false;
+            }
             
-            currentUser = { id: data.user.id, username: username };
+            currentUser = { id: data.id, username: username };
             localStorage.setItem("saved_username", username);
             localStorage.setItem("saved_password", btoa(password));
             
-            addSys(`✅ Добро пожаловать, ${username}! Загружаем сохранение...`, "achievement");
+            addSys(`✅ Добро пожаловать, ${username}!`, "achievement");
             await loadGameFromCloud();
             updateUI();
             return true;
         } catch(e) {
-            addSys(`❌ Ошибка входа: ${e.message}`);
+            addSys(`❌ Ошибка: ${e.message}`);
             return false;
         }
     }
     
     async function logout() {
-        if (supabase) await supabase.auth.signOut();
         currentUser = null;
         localStorage.removeItem("saved_username");
         localStorage.removeItem("saved_password");
         
-        // Сброс игрока
         player = {
             class: null, level: 1, xp: 0, gold: 800, glory: 0, hp: 200, maxHp: 200, mp: 50, maxMp: 50,
             weapon: null, keys: { "Медный ключ": 0, "Серебряный ключ": 0, "Золотой ключ": 0, "Пламенный ключ": 0, "Ледяной ключ": 0, "Кровавый ключ": 0, "Магический ключ": 0, "Рунический ключ": 0 },
@@ -737,7 +741,7 @@
             
             console.log("✅ Автосохранение");
         } catch(e) {
-            console.warn("Ошибка автосохранения:", e);
+            console.warn("Ошибка сохранения:", e);
         }
     }
     
@@ -770,11 +774,11 @@
                 if (d.stats) player.stats = d.stats;
                 if (d.usedPromoCodes) player.usedPromoCodes = d.usedPromoCodes;
                 
-                addSys(`☁️ Прогресс загружен! Уровень ${player.level}, ${player.gold}💰`, "achievement");
+                addSys(`☁️ Прогресс загружен! Уровень ${player.level}`, "achievement");
                 updateUI();
                 return true;
             } else {
-                addSys(`📀 Новый аккаунт! Выберите класс чтобы начать.`, "system");
+                addSys(`📀 Новый аккаунт! Выберите класс.`, "system");
                 showClassSelector();
                 return false;
             }
@@ -818,7 +822,7 @@
             if (!data || data.length === 0) {
                 panel.innerHTML = `<div class="select-item">Рейтинг пуст</div><button id="closePanel">Закрыть</button>`;
             } else {
-                panel.innerHTML = `<strong>🏆 ТОП-30 ИГРОКОВ 🏆</strong><div class="select-list">` +
+                panel.innerHTML = `<strong>🏆 ТОП-30 🏆</strong><div class="select-list">` +
                     data.map((p, i) => `<div class="select-item">${i+1}. ${p.player_name} | Ур.${p.level} | ✨${p.glory}</div>`).join('') +
                     `</div><button id="closePanel">Закрыть</button>`;
             }
@@ -871,9 +875,8 @@
         document.getElementById("closePanel").onclick = () => panel.classList.add("hidden");
     }
     
-    // ======================== // ИНИЦИАЛИЗАЦИЯ // ========================
+    // ======================== // ЗАПУСК // ========================
     
-    // Автовход
     async function tryAutoLogin() {
         let savedName = localStorage.getItem("saved_username");
         let savedPass = localStorage.getItem("saved_password");
@@ -882,34 +885,6 @@
         } else {
             showLoginPanel();
         }
-    }
-    
-    // Настройка таблиц Supabase (выполнить один раз в SQL редакторе)
-    function showSqlInstructions() {
-        console.log(`
-        -- Выполните в SQL редакторе Supabase:
-        
-        CREATE TABLE IF NOT EXISTS profiles (
-            id UUID PRIMARY KEY,
-            username TEXT UNIQUE NOT NULL,
-            created_at TIMESTAMP DEFAULT NOW()
-        );
-        
-        CREATE TABLE IF NOT EXISTS game_saves (
-            user_id UUID PRIMARY KEY REFERENCES profiles(id),
-            save_data JSONB NOT NULL,
-            updated_at TIMESTAMP DEFAULT NOW()
-        );
-        
-        CREATE TABLE IF NOT EXISTS leaderboard (
-            player_name TEXT PRIMARY KEY,
-            level INT DEFAULT 1,
-            glory INT DEFAULT 0,
-            total_kills INT DEFAULT 0,
-            elite_kills INT DEFAULT 0,
-            updated_at TIMESTAMP DEFAULT NOW()
-        );
-        `);
     }
     
     // Привязка кнопок
@@ -931,28 +906,29 @@
     document.getElementById("leaderboardBtn").onclick = showLeaderboard;
     document.getElementById("achievementsBtn").onclick = showAchievements;
     document.getElementById("dailyQuestsBtn").onclick = showDailyQuests;
-    document.getElementById("promoBtn").onclick = () => { addSys("🎁 Промокоды: WELCOME (+500💰 +100✨)"); };
+    document.getElementById("promoBtn").onclick = () => { addSys("🎁 Промокод: WELCOME (+500💰 +100✨)"); };
     document.getElementById("themeBtn").onclick = () => { document.body.classList.toggle("light"); localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark"); };
     document.getElementById("sendBtn").onclick = () => { let inp = document.getElementById("cmdInput"); processCmd(inp.value); inp.value = ""; };
     
     function processCmd(cmd) { 
         let c = cmd.toLowerCase().trim();
         if (c === "очистить") { clearChat(); return; }
-        if (c === "статы") { addSys(`Ур.${player.level} ❤️${Math.floor(player.hp)}/${player.maxHp} 💙${Math.floor(player.mp)}/${player.maxMp} 🪙${Math.floor(player.gold)} ✨${Math.floor(player.glory)}`); return; }
+        if (c === "статы") { addSys(`Ур.${player.level} ❤️${Math.floor(player.hp)}/${player.maxHp} 🪙${Math.floor(player.gold)} ✨${Math.floor(player.glory)}`); return; }
         if (c === "рейтинг") { showLeaderboard(); return; }
         if (c === "сохранить") { autoSaveToCloud(); addSys("💾 Сохранено!"); return; }
-        if (c === "помощь") { addSys(`Команды: статы, рейтинг, сохранить, очистить | Версия ${GAME_VERSION}`); return; }
-        addSys(`❓ Неизвестно. Введите "помощь".`); 
+        if (c === "помощь") { addSys(`Команды: статы, рейтинг, сохранить, очистить`); return; }
+        addSys(`❓ Неизвестно. "помощь"`); 
     }
     
-    // Загрузка темы
+    function clearChat() {
+        let chat = document.getElementById("chatArea");
+        chat.innerHTML = '<div class="msg system">🌀 Чат очищен.</div>';
+    }
+    
     let savedTheme = localStorage.getItem("theme");
     if (savedTheme === "light") document.body.classList.add("light");
     
-    // Запуск
     tryAutoLogin();
-    
-    // Автосохранение каждые 30 секунд
     setInterval(() => { autoSaveToCloud(); }, 30000);
     setInterval(() => { if(player.inBattle && player.currentEnemy && player.currentEnemy.hp>0 && player.hp>0) enemyAttack(); }, 4000);
 </script>
