@@ -2,97 +2,58 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Тысячи врат: Онлайн RPG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Тысячи врат - Онлайн RPG</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
             background: #0a0c16;
-            font-family: system-ui, -apple-system, monospace;
+            font-family: system-ui, monospace;
             margin: 0;
             padding: 8px;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
             color: #eef4ff;
-            transition: background 0.2s, color 0.2s;
         }
-        body.light {
-            background: #e8edf5;
-            color: #1a2a3a;
-        }
-        body.light .game-container { background: #ffffff; box-shadow: 0 0 0 1px #c0d0e0; }
-        body.light .stats-panel { background: #f0f4fa; border-bottom-color: #c0d0e0; color: #1a2a3a; }
-        body.light .stats-panel span { color: #c97e00; }
-        body.light .chat { background: #f5f7fc; }
-        body.light .msg { background: #e8edf5; border-left-color: #4c7a9a; color: #1a2a3a; }
-        body.light .msg.system { background: #e0e8f0; border-left-color: #d6b356; }
-        body.light .enemy-panel { background: #e0e8f0; color: #1a2a3a; }
-        body.light .buttons-panel { background: #f0f4fa; border-color: #c0d0e0; }
-        body.light .buttons-panel button { background: #4c7a9a; color: white; }
-        body.light .input-area { background: #f0f4fa; border-color: #c0d0e0; }
-        body.light input { background: #ffffff; color: #1a2a3a; border: 1px solid #c0d0e0; }
-        body.light .sub-panel { background: #f0f4fa; }
-        body.light .select-item, body.light .shop-item, body.light .craft-item { background: #e0e8f0; color: #1a2a3a; }
         .game-container {
             max-width: 700px;
             margin: 0 auto;
             background: #03060e;
             border-radius: 28px;
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            box-shadow: 0 0 0 1px #2a3f55;
             overflow: hidden;
-            position: relative;
+            box-shadow: 0 0 0 1px #2a3f55;
         }
         .stats-panel {
             background: #010a17;
-            padding: 8px 10px;
+            padding: 10px 12px;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 10px;
             justify-content: space-between;
             font-size: 0.7rem;
             font-weight: bold;
             border-bottom: 1px solid #1f3a4b;
-            position: relative;
         }
         .stats-panel span { color: #f5bc70; }
         .player-name {
             background: #1f3a52;
             padding: 2px 8px;
             border-radius: 20px;
-            font-size: 0.65rem;
             color: #ffd966;
-        }
-        .version-badge {
-            position: absolute;
-            top: 4px;
-            right: 8px;
-            font-size: 0.55rem;
-            color: #6a8aaa;
-            opacity: 0.7;
-            font-weight: normal;
         }
         .enemy-panel {
             background: #0d1a2a;
-            padding: 8px;
-            margin: 6px 10px;
+            padding: 10px;
+            margin: 10px;
             border-radius: 20px;
             display: flex;
             justify-content: space-between;
             font-weight: bold;
-            font-size: 0.8rem;
         }
         .chat {
-            max-height: 35vh;
+            height: 250px;
             overflow-y: auto;
             padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
             background: #051020;
             font-size: 0.8rem;
         }
@@ -100,35 +61,29 @@
             background: #0f1a2c;
             padding: 6px 10px;
             border-radius: 18px;
-            word-wrap: break-word;
+            margin-bottom: 6px;
             border-left: 3px solid #4c7a9a;
-            align-self: flex-start;
-            max-width: 94%;
         }
-        .msg.system { background: #121e2e; border-left-color: #d6b356; }
-        .msg.achievement { background: #1a2a1a; border-left-color: #6bc46b; }
+        .msg.system { border-left-color: #d6b356; }
+        .msg.achievement { border-left-color: #6bc46b; }
         .buttons-panel {
             background: #030c17;
             padding: 10px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
-            border-top: 1px solid #1a3045;
-            border-bottom: 1px solid #1a3045;
         }
         .buttons-panel button {
             background: #1f3a52;
             border: none;
             color: white;
             font-weight: bold;
-            padding: 10px 8px;
+            padding: 10px;
             border-radius: 40px;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             cursor: pointer;
-            text-align: center;
         }
-        .buttons-panel button:active { transform: scale(0.96); background: #2c5a7a; }
-        .active-mode { background: #4c7a9a !important; box-shadow: 0 0 6px #7ab3c8; }
+        .online-btn { background: #2e6e5a; }
         .input-area {
             display: flex;
             gap: 8px;
@@ -146,44 +101,59 @@
             font-size: 0.9rem;
             outline: none;
         }
-        button { background: #2c4f6e; border: none; color: white; padding: 8px 16px; border-radius: 40px; cursor: pointer; }
+        button { background: #2c4f6e; color: white; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; }
         .hidden { display: none; }
         .sub-panel {
             background: #0a1424;
-            margin: 5px 10px;
+            margin: 10px;
             border-radius: 20px;
-            padding: 8px;
-            max-height: 200px;
+            padding: 10px;
+            max-height: 250px;
             overflow-y: auto;
         }
-        .class-selector { display: flex; gap: 12px; justify-content: center; margin: 10px; }
-        .class-btn { background: #2a3f55; padding: 12px; flex: 1; text-align: center; border-radius: 60px; font-weight: bold; cursor: pointer; }
-        .select-list { display: flex; flex-direction: column; gap: 5px; margin-top: 8px; max-height: 150px; overflow-y: auto; }
-        .select-item { background: #162336; padding: 6px 10px; border-radius: 40px; cursor: pointer; margin: 2px; font-size: 0.7rem; }
-        .craft-item { background: #162336; padding: 6px; border-radius: 16px; margin: 4px; cursor: pointer; }
-        .craft-recipe { font-size: 0.6rem; color: #aac8ff; }
-        .craft-damage { font-size: 0.65rem; color: #ffaa66; font-weight: bold; margin-left: 6px; }
-        .shop-item { background: #162336; padding: 6px 10px; border-radius: 40px; margin: 3px; cursor: pointer; font-size: 0.7rem; display: flex; justify-content: space-between; }
-        hr { border-color: #2e4b6e; margin: 5px; }
-        .promo-btn, .theme-btn { background: #4a2e6e; grid-column: span 2; margin-top: 4px; }
-        .upgrade-btn { background: #8b5e3c; }
-        .online-btn { background: #2e6e5a; }
-        .theme-btn { background: #2e5a6e; }
-        .glory { color: #ffd966; }
-        .daily-boss-btn { background: #8b5e3c; }
         .login-panel {
-            background: #0a1424;
-            padding: 15px;
-            border-radius: 20px;
             text-align: center;
+            padding: 15px;
         }
         .login-panel input {
-            margin: 8px 0;
             width: 100%;
+            margin: 8px 0;
         }
         .login-panel button {
             margin: 5px;
-            padding: 8px 20px;
+            padding: 10px 20px;
+        }
+        .class-selector {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding: 15px;
+        }
+        .class-btn {
+            background: #2a3f55;
+            padding: 15px;
+            flex: 1;
+            text-align: center;
+            border-radius: 60px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .select-item {
+            background: #162336;
+            padding: 8px;
+            border-radius: 40px;
+            margin: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .shop-item {
+            background: #162336;
+            padding: 8px;
+            border-radius: 40px;
+            margin: 5px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
         }
     </style>
 </head>
@@ -192,14 +162,11 @@
     <div class="stats-panel">
         <div>⚔️ <span id="className">???</span> | Ур.<span id="lvl">1</span></div>
         <div>❤️ <span id="hp">200</span>/<span id="maxHp">200</span></div>
-        <div>💙 <span id="mp">50</span>/<span id="maxMp">50</span></div>
         <div>🪙 <span id="gold">800</span></div>
-        <div>✨ <span id="glory" class="glory">0</span></div>
-        <div>⚡ УРН <span id="dmgStat">20</span></div>
-        <div>🔑 <span id="keyCount">0</span></div>
+        <div>✨ <span id="glory">0</span></div>
         <div class="player-name" id="playerNameDisplay">Не авторизован</div>
-        <div class="version-badge" id="versionDisplay">v0.6.0</div>
     </div>
+    
     <div class="enemy-panel" id="enemyPanel" style="display: none;">
         <span>👾 <span id="enemyName">Гоблин</span></span>
         <span>❤️ <span id="enemyHp">120</span></span>
@@ -207,7 +174,7 @@
     </div>
 
     <div class="chat" id="chatArea">
-        <div class="msg system">🌀 Тысячи врат. Войдите в аккаунт чтобы начать.</div>
+        <div class="msg system">🌀 Тысячи врат. Нажмите "ВОЙТИ" для начала.</div>
     </div>
 
     <div id="dynamicPanel" class="sub-panel hidden"></div>
@@ -217,148 +184,95 @@
         <button id="registerBtn" class="online-btn">📝 РЕГИСТРАЦИЯ</button>
         <button id="logoutBtn">🚪 ВЫЙТИ</button>
         <button id="questBtn">📜 КВЕСТЫ</button>
-        <button id="bossListBtn">👑 БОССЫ</button>
-        <button id="dailyBossBtn" class="daily-boss-btn">⭐ ЕЖЕДНЕВНЫЙ</button>
+        <button id="bossBtn">👑 БОССЫ</button>
         <button id="attackBtn">⚔️ АТАКА</button>
-        <button id="autoAttackBtn">🔄 АВТО</button>
         <button id="healBtn">💚 ЛЕЧИТЬ</button>
-        <button id="autoHealBtn">💊 АВТОХИЛ</button>
         <button id="shopBtn">🏪 МАГАЗИН</button>
-        <button id="gloryShopBtn">✨ СЛАВА</button>
-        <button id="inventoryBtn">📦 ИНВЕНТАРЬ</button>
-        <button id="craftBtn">⚙️ КРАФТ</button>
-        <button id="upgradeBtn" class="upgrade-btn">🔧 УЛУЧШИТЬ</button>
         <button id="leaderboardBtn" class="online-btn">🏆 РЕЙТИНГ</button>
-        <button id="achievementsBtn">🏆 ДОСТИЖЕНИЯ</button>
-        <button id="dailyQuestsBtn">📅 ЗАДАНИЯ</button>
-        <button id="promoBtn" class="promo-btn">🎁 ПРОМОКОД</button>
-        <button id="themeBtn" class="theme-btn">🌓 ТЕМА</button>
     </div>
 
     <div class="input-area">
-        <input type="text" id="cmdInput" placeholder="Сообщение или команда..." autocomplete="off">
+        <input type="text" id="cmdInput" placeholder="Команда: статы, помощь" autocomplete="off">
         <button id="sendBtn">➤</button>
     </div>
 </div>
 
 <script>
-    // ======================== // SUPABASE НАСТРОЙКИ // ========================
+    // ============== SUPABASE НАСТРОЙКИ (ВАШИ ДАННЫЕ) ==============
     const SUPABASE_URL = "https://tmjqafqecjpizawdruzq.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRtanFhZnFlY2pwaXphd2RydXpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4OTk2OTYsImV4cCI6MjA5NTQ3NTY5Nn0.8K7i5QEbjYWSvqw78P8RSR_abYM8uCRZbvC9Hp12bac";
     
     let supabase = null;
     let currentUser = null;
-    let autoSaveInterval = null;
     
+    // Инициализация
     try {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log("✅ Supabase инициализирован");
+        console.log("Supabase готов");
     } catch(e) {
-        console.warn("❌ Supabase ошибка:", e);
+        alert("Ошибка подключения к Supabase: " + e.message);
     }
     
-    const GAME_VERSION = "0.6.0";
-    document.getElementById("versionDisplay").innerText = "v" + GAME_VERSION;
-    
-    // ======================== // ИГРОВЫЕ ДАННЫЕ // ========================
-    const QUESTS = [
-        { name: "Лесной гоблин", hp: 160, atk: 28, gold: 90, xp: 45, glory: 5, key: "Медный ключ", keyChance: 0.6 },
-        { name: "Каменный тролль", hp: 290, atk: 42, gold: 150, xp: 80, glory: 8, key: "Серебряный ключ", keyChance: 0.55 },
-        { name: "Теневой рыцарь", hp: 450, atk: 65, gold: 240, xp: 130, glory: 12, key: "Золотой ключ", keyChance: 0.5 },
-        { name: "Огненный элементаль", hp: 680, atk: 88, gold: 370, xp: 190, glory: 18, key: "Пламенный ключ", keyChance: 0.45 },
-        { name: "Ледяной великан", hp: 920, atk: 115, gold: 520, xp: 260, glory: 25, key: "Ледяной ключ", keyChance: 0.4 },
-        { name: "Древний вампир", hp: 1250, atk: 150, gold: 740, xp: 350, glory: 35, key: "Кровавый ключ", keyChance: 0.35 },
-        { name: "Хаотичный маг", hp: 1650, atk: 195, gold: 980, xp: 460, glory: 45, key: "Магический ключ", keyChance: 0.3 },
-        { name: "Каменный голем", hp: 2100, atk: 240, gold: 1300, xp: 600, glory: 60, key: "Рунический ключ", keyChance: 0.25 }
-    ];
-    
-    const NORMAL_BOSSES = [
-        { name: "🗿 Каменный страж", hp: 800, atk: 70, gold: 500, xp: 250, glory: 30, drops: [{ material: "Осколок магмы", qty: 2, chance: 1.0 }] },
-        { name: "❄️ Ледяной дух", hp: 1200, atk: 95, gold: 750, xp: 380, glory: 40, drops: [{ material: "Ледяной осколок", qty: 2, chance: 1.0 }] },
-        { name: "🔥 Огненный голем", hp: 1800, atk: 130, gold: 1100, xp: 550, glory: 50, drops: [{ material: "Рунический камень", qty: 1, chance: 0.8 }, { material: "Осколок магмы", qty: 3, chance: 1.0 }] },
-        { name: "🌪️ Владыка ветра", hp: 2600, atk: 180, gold: 1600, xp: 800, glory: 65, drops: [{ material: "Древний пергамент", qty: 2, chance: 0.9 }] },
-        { name: "💀 Могильный рыцарь", hp: 3600, atk: 240, gold: 2300, xp: 1150, glory: 85, drops: [{ material: "Теневые нити", qty: 2, chance: 1.0 }] },
-        { name: "🌙 Лунный жрец", hp: 4800, atk: 320, gold: 3200, xp: 1600, glory: 110, drops: [{ material: "Лунная пыль", qty: 3, chance: 1.0 }] },
-        { name: "⚡ Громовой титан", hp: 6400, atk: 420, gold: 4500, xp: 2200, glory: 140, drops: [{ material: "Рунический камень", qty: 3, chance: 1.0 }, { material: "Древний пергамент", qty: 2, chance: 0.7 }] },
-        { name: "🐉 Пустынный дракон", hp: 8500, atk: 550, gold: 6200, xp: 3000, glory: 180, drops: [{ material: "Осколок магмы", qty: 5, chance: 1.0 }, { material: "Ледяной осколок", qty: 3, chance: 0.8 }] },
-        { name: "👑 Король скелетов", hp: 11000, atk: 720, gold: 8500, xp: 4100, glory: 230, drops: [{ material: "Эссенция тьмы", qty: 2, chance: 1.0 }, { material: "Теневые нити", qty: 4, chance: 1.0 }] },
-        { name: "🌀 Архидемон", hp: 14500, atk: 940, gold: 12000, xp: 5600, glory: 300, drops: [{ material: "Эссенция тьмы", qty: 4, chance: 1.0 }, { material: "Рунический камень", qty: 4, chance: 0.9 }] },
-        { name: "✨ Ангел света", hp: 19000, atk: 1250, gold: 17000, xp: 7800, glory: 400, drops: [{ material: "Лунная пыль", qty: 6, chance: 1.0 }, { material: "Древний пергамент", qty: 5, chance: 1.0 }] },
-        { name: "🐉 Изначальный дракон", hp: 26000, atk: 1650, gold: 25000, xp: 11500, glory: 550, drops: [{ material: "Осколок магмы", qty: 8, chance: 1.0 }, { material: "Рунический камень", qty: 6, chance: 1.0 }] }
-    ];
-    
-    const ELITE_BOSSES = [
-        { name: "🔥 Владыка магмы", needKey: "Медный ключ", hp: 1400, atk: 110, gold: 1000, xp: 500, glory: 60, drops: [{ material: "Осколок магмы", qty: 5, chance: 1.0 }] },
-        { name: "❄️ Ледяной дракон", needKey: "Серебряный ключ", hp: 2500, atk: 170, gold: 1800, xp: 850, glory: 75, drops: [{ material: "Ледяной осколок", qty: 5, chance: 1.0 }] },
-        { name: "🌙 Хранитель луны", needKey: "Золотой ключ", hp: 4000, atk: 250, gold: 2800, xp: 1300, glory: 100, drops: [{ material: "Лунная пыль", qty: 6, chance: 1.0 }] },
-        { name: "⚡ Повелитель бури", needKey: "Пламенный ключ", hp: 5800, atk: 350, gold: 4200, xp: 1900, glory: 130, drops: [{ material: "Рунический камень", qty: 6, chance: 1.0 }] },
-        { name: "💀 Лич Некромант", needKey: "Ледяной ключ", hp: 8000, atk: 480, gold: 6200, xp: 2700, glory: 170, drops: [{ material: "Теневые нити", qty: 7, chance: 1.0 }, { material: "Эссенция тьмы", qty: 3, chance: 0.9 }] },
-        { name: "🗡️ Теневой клинок", needKey: "Кровавый ключ", hp: 10500, atk: 640, gold: 8500, xp: 3700, glory: 220, drops: [{ material: "Теневые нити", qty: 8, chance: 1.0 }] },
-        { name: "🧙 Магистр хаоса", needKey: "Магический ключ", hp: 14000, atk: 840, gold: 11500, xp: 5000, glory: 280, drops: [{ material: "Древний пергамент", qty: 6, chance: 1.0 }] },
-        { name: "🏔️ Горный титан", needKey: "Рунический ключ", hp: 18500, atk: 1100, gold: 16000, xp: 6800, glory: 360, drops: [{ material: "Рунический камень", qty: 8, chance: 1.0 }] }
+    // ============== ИГРОВЫЕ ДАННЫЕ ==============
+    const BOSSES = [
+        { name: "Лесной гоблин", hp: 160, atk: 28, gold: 90, xp: 45, glory: 5 },
+        { name: "Каменный тролль", hp: 290, atk: 42, gold: 150, xp: 80, glory: 8 },
+        { name: "Теневой рыцарь", hp: 450, atk: 65, gold: 240, xp: 130, glory: 12 },
+        { name: "Огненный элементаль", hp: 680, atk: 88, gold: 370, xp: 190, glory: 18 }
     ];
     
     const WEAPONS = {
         warrior: [
-            { name: "⚔️ Ржавый меч", dmg: 12, cost: 0 },
-            { name: "🛡️ Стальной клинок", dmg: 22, cost: 400 },
-            { name: "🗡️ Меч ветра", dmg: 32, cost: 850 },
-            { name: "🔥 Пламенный топор", dmg: 42, cost: 1350 },
-            { name: "❄️ Ледяной рассекатель", dmg: 52, cost: 1950 }
+            { name: "Ржавый меч", dmg: 12, cost: 0 },
+            { name: "Стальной клинок", dmg: 22, cost: 400 },
+            { name: "Пламенный топор", dmg: 42, cost: 1350 }
         ],
         mage: [
-            { name: "🔮 Деревянный посох", dmg: 10, cost: 0 },
-            { name: "🔥 Жезл огня", dmg: 20, cost: 400 },
-            { name: "❄️ Ледяная сфера", dmg: 30, cost: 850 },
-            { name: "⚡ Грозовой жезл", dmg: 40, cost: 1350 },
-            { name: "🌙 Посох луны", dmg: 50, cost: 1950 }
+            { name: "Деревянный посох", dmg: 10, cost: 0 },
+            { name: "Жезл огня", dmg: 20, cost: 400 },
+            { name: "Посох луны", dmg: 50, cost: 1950 }
         ],
         archer: [
-            { name: "🏹 Короткий лук", dmg: 11, cost: 0 },
-            { name: "🌪️ Ветреный арбалет", dmg: 21, cost: 400 },
-            { name: "🔥 Огненный лук", dmg: 31, cost: 850 },
-            { name: "❄️ Ледяная стрела", dmg: 41, cost: 1350 },
-            { name: "⚡ Громовой арбалет", dmg: 51, cost: 1950 }
+            { name: "Короткий лук", dmg: 11, cost: 0 },
+            { name: "Огненный лук", dmg: 31, cost: 850 },
+            { name: "Лук смерти", dmg: 63, cost: 2650 }
         ]
     };
     
     let player = {
-        class: null, level: 1, xp: 0, gold: 800, glory: 0, hp: 200, maxHp: 200, mp: 50, maxMp: 50,
-        weapon: null, keys: { "Медный ключ": 0, "Серебряный ключ": 0, "Золотой ключ": 0, "Пламенный ключ": 0, "Ледяной ключ": 0, "Кровавый ключ": 0, "Магический ключ": 0, "Рунический ключ": 0 },
-        materials: { "Осколок магмы": 0, "Рунический камень": 0, "Ледяной осколок": 0, "Древний пергамент": 0, "Теневые нити": 0, "Эссенция тьмы": 0, "Лунная пыль": 0 },
-        inBattle: false, currentEnemy: null, autoAttack: false, autoHeal: false, attackInterval: null, healInterval: null,
-        usedPromoCodes: [], stats: { totalKills: 0, eliteKills: 0, totalCrafts: 0, totalGoldEarned: 0 }
+        class: null, level: 1, xp: 0, gold: 800, glory: 0, hp: 200, maxHp: 200,
+        weapon: null, inBattle: false, currentEnemy: null,
+        stats: { totalKills: 0, totalGoldEarned: 0 }
     };
     
-    function addSys(msg, type = "system") { 
-        let chat = document.getElementById("chatArea"); 
-        let d = document.createElement("div"); 
-        d.className = `msg ${type}`; 
-        d.innerHTML = msg; 
-        chat.appendChild(d); 
-        chat.scrollTop = chat.scrollHeight; 
-        if (chat.children.length > 200) chat.removeChild(chat.children[0]);
+    // ============== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==============
+    function addMsg(msg, type = "system") {
+        let chat = document.getElementById("chatArea");
+        let div = document.createElement("div");
+        div.className = `msg ${type}`;
+        div.innerHTML = msg;
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
     }
     
     function updateUI() {
-        document.getElementById("className").innerText = player.class ? (player.class === "warrior" ? "Воин" : player.class === "mage" ? "Маг" : "Лучник") : "???";
+        document.getElementById("className").innerText = player.class ? player.class : "???";
         document.getElementById("lvl").innerText = player.level;
         document.getElementById("hp").innerText = Math.floor(player.hp);
         document.getElementById("maxHp").innerText = player.maxHp;
-        document.getElementById("mp").innerText = Math.floor(player.mp);
-        document.getElementById("maxMp").innerText = player.maxMp;
         document.getElementById("gold").innerText = Math.floor(player.gold);
         document.getElementById("glory").innerText = Math.floor(player.glory);
-        let totalKeys = Object.keys(player.keys).reduce((a,b)=>a+player.keys[b],0);
-        document.getElementById("keyCount").innerText = totalKeys;
-        let dmg = player.weapon ? (player.weapon.dmg + Math.floor(player.level * 1.2)) : 10;
-        document.getElementById("dmgStat").innerText = dmg;
+        
+        let dmg = player.weapon ? player.weapon.dmg + Math.floor(player.level * 1.2) : 10;
+        
         if (player.inBattle && player.currentEnemy) {
             document.getElementById("enemyPanel").style.display = "flex";
             document.getElementById("enemyName").innerText = player.currentEnemy.name;
             document.getElementById("enemyHp").innerText = Math.max(0, Math.floor(player.currentEnemy.hp));
             document.getElementById("enemyAtk").innerText = player.currentEnemy.atk;
-        } else { document.getElementById("enemyPanel").style.display = "none"; }
+        } else {
+            document.getElementById("enemyPanel").style.display = "none";
+        }
         
         if (currentUser) {
             document.getElementById("playerNameDisplay").innerHTML = `👤 ${currentUser.username}`;
@@ -367,327 +281,246 @@
         }
     }
     
-    function getDamage() { return (player.weapon ? player.weapon.dmg : 10) + Math.floor(player.level * 1.2) + Math.floor(Math.random() * 12); }
-    
-    function attack() { 
-        if (!player.inBattle || !player.currentEnemy) { addSys("Нет боя!"); return; }
-        let dmg = getDamage(); 
-        player.currentEnemy.hp -= dmg; 
-        addSys(`⚔️ Урон ${dmg}. У ${player.currentEnemy.name} осталось ${Math.max(0, Math.floor(player.currentEnemy.hp))} HP.`);
-        if (player.currentEnemy.hp <= 0) { defeatEnemy(); } 
-        updateUI(); 
-        autoSaveToCloud();
+    function getDamage() {
+        let base = player.weapon ? player.weapon.dmg : 10;
+        return base + Math.floor(player.level * 1.2) + Math.floor(Math.random() * 12);
     }
     
-    async function defeatEnemy() {
+    function attack() {
+        if (!player.inBattle || !player.currentEnemy) {
+            addMsg("Нет боя!", "system");
+            return;
+        }
+        let dmg = getDamage();
+        player.currentEnemy.hp -= dmg;
+        addMsg(`⚔️ Урон ${dmg}. У ${player.currentEnemy.name} осталось ${Math.max(0, Math.floor(player.currentEnemy.hp))} HP.`);
+        
+        if (player.currentEnemy.hp <= 0) {
+            defeatEnemy();
+        } else {
+            enemyAttack();
+        }
+        updateUI();
+        saveToCloud();
+    }
+    
+    function defeatEnemy() {
         let goldGain = player.currentEnemy.gold + Math.floor(Math.random() * 60);
         let xpGain = player.currentEnemy.xp + player.level * 4;
         let gloryGain = player.currentEnemy.glory || 5;
-        player.gold += goldGain; 
-        player.xp += xpGain; 
-        player.glory += gloryGain;
-        player.stats.totalGoldEarned += goldGain;
-        player.stats.totalKills++;
-        if (player.currentEnemy.needKey) player.stats.eliteKills++;
         
-        addSys(`🏆 Победа! +${goldGain}💰 +${xpGain}✨ опыта +${gloryGain}✨ славы!`);
+        player.gold += goldGain;
+        player.xp += xpGain;
+        player.glory += gloryGain;
+        player.stats.totalKills++;
+        player.stats.totalGoldEarned += goldGain;
+        
+        addMsg(`🏆 Победа! +${goldGain}💰 +${xpGain}✨ опыта +${gloryGain}✨ славы!`, "achievement");
         
         let need = 100 + player.level * 12;
-        if (player.xp >= need) { 
-            player.level++; 
-            player.xp = 0; 
-            player.maxHp += 20; 
-            player.hp = player.maxHp; 
-            addSys(`✨ УРОВЕНЬ ${player.level}!`); 
+        if (player.xp >= need) {
+            player.level++;
+            player.xp = 0;
+            player.maxHp += 20;
+            player.hp = player.maxHp;
+            addMsg(`✨ УРОВЕНЬ ${player.level}!`, "achievement");
         }
         
-        if (player.currentEnemy.key) { 
-            let r = Math.random(); 
-            if (r < player.currentEnemy.keyChance) { 
-                player.keys[player.currentEnemy.key]++; 
-                addSys(`🔑 Выпал ${player.currentEnemy.key}!`); 
-            } 
-        }
-        
-        if (player.currentEnemy.drops) {
-            for (let d of player.currentEnemy.drops) {
-                if (Math.random() < d.chance) {
-                    if (d.material) { 
-                        player.materials[d.material] = (player.materials[d.material] || 0) + d.qty; 
-                        addSys(`📦 Материал: +${d.qty} ${d.material}`); 
-                    }
-                }
-            }
-        }
-        
-        player.inBattle = false; 
-        if (player.attackInterval) clearInterval(player.attackInterval); 
-        player.currentEnemy = null; 
-        updateUI(); 
-        await autoSaveToCloud();
-        await updateLeaderboard();
+        player.inBattle = false;
+        player.currentEnemy = null;
+        updateUI();
+        saveToCloud();
+        updateLeaderboard();
     }
     
-    function enemyAttack() { 
+    function enemyAttack() {
         if (!player.inBattle || !player.currentEnemy) return;
         let dmg = Math.max(6, player.currentEnemy.atk + Math.floor(Math.random() * 14) - Math.floor(player.level * 0.3));
-        player.hp -= dmg; 
-        addSys(`😖 ${player.currentEnemy.name} атакует! -${dmg} HP. Осталось ${Math.floor(player.hp)}/${player.maxHp}`);
-        if (player.hp <= 0) { 
-            addSys(`💀 Вы пали... Потеря 20% золота и славы.`); 
-            player.gold = Math.floor(player.gold * 0.8); 
-            player.glory = Math.floor(player.glory * 0.8); 
-            player.hp = player.maxHp; 
-            player.inBattle = false; 
-            if(player.attackInterval) clearInterval(player.attackInterval); 
-            player.currentEnemy = null; 
-            autoSaveToCloud();
-        }
-        updateUI(); 
-    }
-    
-    function startBattle(enemy) { 
-        if (player.inBattle) { addSys("Вы уже в бою!"); return; } 
-        player.currentEnemy = JSON.parse(JSON.stringify(enemy)); 
-        player.inBattle = true; 
-        addSys(`⚔️ Бой с ${enemy.name} (❤️ ${enemy.hp} | ⚔️ ${enemy.atk})`); 
-        updateUI(); 
-    }
-    
-    function heal() { 
-        let cost = 45; 
-        if (player.gold >= cost && player.hp < player.maxHp) { 
-            player.gold -= cost; 
-            player.hp = Math.min(player.maxHp, player.hp + 40 + player.level); 
-            addSys(`💚 Лечение +${40+player.level} HP. -${cost}💰.`); 
-            autoSaveToCloud();
-        } else addSys(`❌ Не хватает.`); 
-        updateUI(); 
-    }
-    
-    function toggleAutoAttack() { 
-        player.autoAttack = !player.autoAttack; 
-        if(player.autoAttack){ 
-            addSys(`🔄 Авто-атака ВКЛ`); 
-            if(player.attackInterval) clearInterval(player.attackInterval); 
-            player.attackInterval = setInterval(()=>{ if(player.inBattle && player.currentEnemy?.hp>0 && player.hp>0) attack(); }, 3500); 
-            document.getElementById("autoAttackBtn").classList.add("active-mode"); 
-        } else { 
-            addSys(`🔴 Авто-атака ВЫКЛ`); 
-            if(player.attackInterval) clearInterval(player.attackInterval); 
-            document.getElementById("autoAttackBtn").classList.remove("active-mode"); 
-        } 
-    }
-    
-    function toggleAutoHeal() { 
-        player.autoHeal = !player.autoHeal; 
-        if(player.autoHeal){ 
-            addSys(`💊 Авто-лечение ВКЛ`); 
-            if(player.healInterval) clearInterval(player.healInterval); 
-            player.healInterval = setInterval(()=>{ if(player.autoHeal && player.hp/player.maxHp<0.7 && player.gold>=45) heal(); }, 5500); 
-            document.getElementById("autoHealBtn").classList.add("active-mode"); 
-        } else { 
-            addSys(`💊 Авто-лечение ВЫКЛ`); 
-            if(player.healInterval) clearInterval(player.healInterval); 
-            document.getElementById("autoHealBtn").classList.remove("active-mode"); 
-        } 
-    }
-    
-    function upgradeWeapon() {
-        if (!player.class) { addSys("❌ Сначала выберите класс!"); return; }
-        if (!player.weapon) { addSys("❌ У вас нет оружия для улучшения!"); return; }
-        let currentDmg = player.weapon.dmg;
-        let upgradeCost = Math.max(30, Math.floor(currentDmg * 1.5));
-        if (player.glory < upgradeCost) {
-            addSys(`❌ Не хватает осколков славы! Нужно ${upgradeCost}✨, у вас ${Math.floor(player.glory)}✨`);
-            return;
-        }
-        let roll = Math.random() * 100;
-        if (roll < 70) {
-            player.glory -= upgradeCost;
-            let oldDmg = player.weapon.dmg;
-            player.weapon.dmg = Math.floor(player.weapon.dmg + 3);
-            addSys(`✅ УСПЕХ! ${player.weapon.name} улучшен с ${oldDmg} до ${player.weapon.dmg} урона! -${upgradeCost}✨`, "achievement");
-        } else if (roll < 90) {
-            addSys(`⚠️ НЕУДАЧА! Оружие не улучшилось, но осколки славы не потрачены (${upgradeCost}✨ сохранены).`);
-            return;
-        } else {
-            player.glory -= upgradeCost;
-            let oldWeaponName = player.weapon.name;
-            let defaultWeapon = WEAPONS[player.class][0];
-            player.weapon = { name: defaultWeapon.name, dmg: defaultWeapon.dmg };
-            addSys(`💥 КРИТИЧЕСКАЯ НЕУДАЧА! ${oldWeaponName} сломалось! Вы потеряли ${upgradeCost}✨ и вернулись к ${player.weapon.name} (+${player.weapon.dmg} урона)`);
+        player.hp -= dmg;
+        addMsg(`😖 ${player.currentEnemy.name} атакует! -${dmg} HP. Осталось ${Math.floor(player.hp)}/${player.maxHp}`);
+        
+        if (player.hp <= 0) {
+            addMsg(`💀 Вы пали... Потеря 20% золота и славы.`);
+            player.gold = Math.floor(player.gold * 0.8);
+            player.glory = Math.floor(player.glory * 0.8);
+            player.hp = player.maxHp;
+            player.inBattle = false;
+            player.currentEnemy = null;
+            saveToCloud();
         }
         updateUI();
-        autoSaveToCloud();
     }
     
-    function showUpgradeMenu() {
-        if (!player.class) { addSys("❌ Сначала выберите класс!"); return; }
-        if (!player.weapon) { addSys("❌ У вас нет оружия!"); return; }
-        let currentDmg = player.weapon.dmg;
-        let upgradeCost = Math.max(30, Math.floor(currentDmg * 1.5));
+    function startBattle(enemy) {
+        if (player.inBattle) {
+            addMsg("Вы уже в бою!");
+            return;
+        }
+        player.currentEnemy = JSON.parse(JSON.stringify(enemy));
+        player.inBattle = true;
+        addMsg(`⚔️ Бой с ${enemy.name} (❤️ ${enemy.hp} | ⚔️ ${enemy.atk})`);
+        updateUI();
+    }
+    
+    function heal() {
+        let cost = 45;
+        if (player.gold >= cost && player.hp < player.maxHp) {
+            player.gold -= cost;
+            player.hp = Math.min(player.maxHp, player.hp + 40 + player.level);
+            addMsg(`💚 Лечение +${40 + player.level} HP. -${cost}💰.`);
+            updateUI();
+            saveToCloud();
+        } else {
+            addMsg(`❌ Не хватает золота или HP полное.`);
+        }
+    }
+    
+    function setClass(className) {
+        if (player.class) return;
+        player.class = className;
+        player.weapon = WEAPONS[className][0];
+        
+        if (className === "warrior") {
+            player.maxHp = 260;
+            player.hp = 260;
+        } else if (className === "mage") {
+            player.maxHp = 180;
+            player.hp = 180;
+        } else {
+            player.maxHp = 210;
+            player.hp = 210;
+        }
+        
+        addMsg(`🎭 Вы выбрали ${className.toUpperCase()}! Оружие: ${player.weapon.name} (+${player.weapon.dmg} урона)`);
+        updateUI();
+        saveToCloud();
+    }
+    
+    function showQuests() {
         let panel = document.getElementById("dynamicPanel");
-        panel.innerHTML = `<strong>🔧 УЛУЧШЕНИЕ ОРУЖИЯ</strong><br><br>🗡️ Текущее оружие: ${player.weapon.name}<br>⚔️ Текущий урон: ${currentDmg}<br>✨ Стоимость улучшения: ${upgradeCost} осколков славы<br>🎲 Шансы: 70% успех (+3 урона) | 20% откат | 10% поломка<br><br><button id="confirmUpgradeBtn">🔧 УЛУЧШИТЬ (${upgradeCost}✨)</button><br><br><button id="closePanel">Закрыть</button>`;
+        panel.innerHTML = `<strong>📜 КВЕСТЫ</strong><div>`;
+        BOSSES.forEach((b, i) => {
+            panel.innerHTML += `<div class="select-item" data-idx="${i}">${b.name} (❤️${b.hp} ⚔️${b.atk}) +${b.glory}✨</div>`;
+        });
+        panel.innerHTML += `</div><button id="closePanel">Закрыть</button>`;
         panel.classList.remove("hidden");
-        document.getElementById("confirmUpgradeBtn").onclick = () => { upgradeWeapon(); panel.classList.add("hidden"); };
+        
+        document.querySelectorAll(".select-item").forEach(el => {
+            el.onclick = () => {
+                let idx = parseInt(el.dataset.idx);
+                startBattle({ ...BOSSES[idx] });
+                panel.classList.add("hidden");
+            };
+        });
         document.getElementById("closePanel").onclick = () => panel.classList.add("hidden");
     }
     
-    function showQuests() { 
-        let panel = document.getElementById("dynamicPanel"); 
-        panel.innerHTML = `<strong>📜 КВЕСТЫ (8)</strong><div class="select-list">`+QUESTS.map((q,i)=>`<div class="select-item" data-idx="${i}">${q.name} (❤️${q.hp} ⚔️${q.atk}) ➜ ${q.key} +${q.glory}✨</div>`).join('')+`</div><button id="closePanel">Закрыть</button>`; 
-        panel.classList.remove("hidden"); 
-        document.querySelectorAll(".select-item").forEach(el=>el.onclick=()=>{ let idx=parseInt(el.dataset.idx); startBattle({ ...QUESTS[idx] }); panel.classList.add("hidden"); }); 
-        document.getElementById("closePanel").onclick=()=>panel.classList.add("hidden"); 
-    }
-    
-    function showBosses() { 
-        let panel = document.getElementById("dynamicPanel"); 
-        panel.innerHTML = `<strong>👑 ОБЫЧНЫЕ БОССЫ (12)</strong><div class="select-list">`+NORMAL_BOSSES.map((b,i)=>`<div class="select-item" data-normal="${i}">${b.name} (❤️${b.hp} ⚔️${b.atk}) +${b.glory}✨</div>`).join('')+`</div><hr><strong>⭐ ЭЛИТНЫЕ (8, нужен ключ)</strong><div class="select-list">`+ELITE_BOSSES.map((b,i)=>`<div class="select-item" data-elite="${i}">${b.name} (${b.needKey}) +${b.glory}✨</div>`).join('')+`</div><button id="closePanel">Закрыть</button>`; 
-        panel.classList.remove("hidden"); 
-        document.querySelectorAll("[data-normal]").forEach(el=>el.onclick=()=>{ let idx=parseInt(el.dataset.normal); startBattle({ ...NORMAL_BOSSES[idx] }); panel.classList.add("hidden"); });
-        document.querySelectorAll("[data-elite]").forEach(el=>el.onclick=()=>{ let idx=parseInt(el.dataset.elite); let b=ELITE_BOSSES[idx]; if(player.keys[b.needKey]>0){ player.keys[b.needKey]--; startBattle({ ...b }); addSys(`🔓 Использован ${b.needKey}.`); panel.classList.add("hidden"); } else addSys(`❌ Нужен ${b.needKey}!`); });
-        document.getElementById("closePanel").onclick=()=>panel.classList.add("hidden"); 
-    }
-    
-    function shop() { 
-        if(!player.class) return; 
-        let items = WEAPONS[player.class]; 
-        let panel=document.getElementById("dynamicPanel"); 
-        panel.innerHTML=`<strong>🏪 МАГАЗИН (5 предметов, ${player.class==="warrior"?"Воин":player.class==="mage"?"Маг":"Лучник"})</strong><div class="select-list">`+items.map((w,i)=>`<div class="shop-item" data-idx="${i}">${w.name} +${w.dmg} ур. - ${w.cost}💰</div>`).join('')+`</div><button id="closePanel">Закрыть</button>`; 
-        panel.classList.remove("hidden");
-        document.querySelectorAll(".shop-item").forEach(el=>el.onclick=()=>{ let idx=parseInt(el.dataset.idx); let w=WEAPONS[player.class][idx]; if(w.cost===0) { addSys(`Стартовое оружие`); return; } if(player.gold>=w.cost){ player.gold-=w.cost; player.weapon={name:w.name,dmg:w.dmg}; addSys(`✅ Куплено: ${w.name}!`); updateUI(); autoSaveToCloud(); panel.classList.add("hidden");} else addSys(`Не хватает`); });
-        document.getElementById("closePanel").onclick=()=>panel.classList.add("hidden"); 
-    }
-    
-    function gloryShop() {
+    function showShop() {
+        if (!player.class) {
+            addMsg("Сначала выберите класс!");
+            return;
+        }
+        let items = WEAPONS[player.class];
         let panel = document.getElementById("dynamicPanel");
-        panel.innerHTML = `<strong>✨ Магазин славы (Осколки: ${Math.floor(player.glory)})</strong><div class="select-list"><div class="shop-item" data-gidx="0">📜 Свиток опыта - 50✨ (+200 опыта)</div><div class="shop-item" data-gidx="1">💰 Мешок золота - 30✨ (+500 золота)</div><div class="shop-item" data-gidx="2">🔑 Серебряный ключ - 100✨</div><div class="shop-item" data-gidx="3">🔑 Золотой ключ - 200✨</div><div class="shop-item" data-gidx="4">📦 Рунический камень - 80✨ (x2)</div></div><button id="closePanel">Закрыть</button>`;
-        panel.classList.remove("hidden");
-        document.querySelectorAll("[data-gidx]").forEach(el=>el.onclick=()=>{
-            let idx = parseInt(el.dataset.gidx);
-            if (idx === 0 && player.glory >= 50) { player.glory -= 50; player.xp += 200; addSys(`📜 +200 опыта!`); }
-            else if (idx === 1 && player.glory >= 30) { player.glory -= 30; player.gold += 500; addSys(`💰 +500 золота!`); }
-            else if (idx === 2 && player.glory >= 100) { player.glory -= 100; player.keys["Серебряный ключ"]++; addSys(`🔑 +1 Серебряный ключ!`); }
-            else if (idx === 3 && player.glory >= 200) { player.glory -= 200; player.keys["Золотой ключ"]++; addSys(`🔑 +1 Золотой ключ!`); }
-            else if (idx === 4 && player.glory >= 80) { player.glory -= 80; player.materials["Рунический камень"] += 2; addSys(`📦 +2 Рунический камень!`); }
-            else { addSys(`❌ Не хватает славы!`); return; }
-            updateUI(); autoSaveToCloud(); panel.classList.add("hidden");
+        panel.innerHTML = `<strong>🏪 МАГАЗИН (${player.class})</strong><div>`;
+        items.forEach((w, i) => {
+            panel.innerHTML += `<div class="shop-item" data-idx="${i}">${w.name} +${w.dmg} - ${w.cost}💰</div>`;
         });
-        document.getElementById("closePanel").onclick=()=>panel.classList.add("hidden");
-    }
-    
-    function showInventory() { 
-        let panel=document.getElementById("dynamicPanel"); 
-        panel.innerHTML=`<strong>📦 ИНВЕНТАРЬ</strong><br>Оружие: ${player.weapon?.name||"нет"} (урон +${player.weapon?.dmg||0})<br>🔑 Ключи: ${Object.entries(player.keys).filter(k=>k[1]>0).map(k=>`${k[0]}:${k[1]}`).join(", ")||"нет"}<br>📦 Материалы: ${Object.entries(player.materials).filter(m=>m[1]>0).map(m=>`${m[0]}:${m[1]}`).join(", ")||"пусто"}<br><button id="closePanel">Закрыть</button>`; 
-        panel.classList.remove("hidden"); 
-        document.getElementById("closePanel").onclick=()=>panel.classList.add("hidden"); 
-    }
-    
-    function showAchievements() {
-        let panel = document.getElementById("dynamicPanel");
-        panel.innerHTML = `<strong>🏆 ДОСТИЖЕНИЯ</strong><div class="select-list"><div class="select-item">Убийства: ${player.stats.totalKills}</div><div class="select-item">Элитные убийства: ${player.stats.eliteKills}</div><div class="select-item">Крафтов: ${player.stats.totalCrafts}</div></div><button id="closePanel">Закрыть</button>`;
+        panel.innerHTML += `</div><button id="closePanel">Закрыть</button>`;
         panel.classList.remove("hidden");
-        document.getElementById("closePanel").onclick=()=>panel.classList.add("hidden");
+        
+        document.querySelectorAll(".shop-item").forEach(el => {
+            el.onclick = () => {
+                let idx = parseInt(el.dataset.idx);
+                let w = items[idx];
+                if (w.cost === 0) {
+                    addMsg("Стартовое оружие");
+                    return;
+                }
+                if (player.gold >= w.cost) {
+                    player.gold -= w.cost;
+                    player.weapon = { name: w.name, dmg: w.dmg };
+                    addMsg(`✅ Куплено: ${w.name}!`);
+                    updateUI();
+                    saveToCloud();
+                    panel.classList.add("hidden");
+                } else {
+                    addMsg(`❌ Не хватает золота!`);
+                }
+            };
+        });
+        document.getElementById("closePanel").onclick = () => panel.classList.add("hidden");
     }
     
-    function showDailyQuests() {
-        let panel = document.getElementById("dynamicPanel");
-        panel.innerHTML = `<strong>📅 ЕЖЕДНЕВНЫЕ ЗАДАНИЯ</strong><div class="select-list"><div class="select-item">Победить 3 врагов: ${player.stats.totalKills}/3</div><div class="select-item">Заработать 1000 золота: ${player.stats.totalGoldEarned}/1000</div></div><button id="closePanel">Закрыть</button>`;
-        panel.classList.remove("hidden");
-        document.getElementById("closePanel").onclick=()=>panel.classList.add("hidden");
-    }
-    
-    function dailyBossFight() {
-        if (!player.class) { addSys("Сначала выбери класс!"); return; }
-        if (player.inBattle) { addSys("Ты уже в бою!"); return; }
-        let bossList = ["🐉 Древний дракон", "👑 Король личей", "🌋 Повелитель магмы", "❄️ Ледяной титан"];
-        let randomBoss = bossList[Math.floor(Math.random() * bossList.length)];
-        let baseHp = 600 + player.level * 40;
-        let baseAtk = 80 + player.level * 4;
-        let boss = { name: randomBoss, hp: baseHp, atk: baseAtk, gold: 1500 + player.level * 50, xp: 600 + player.level * 20, glory: 100 + player.level * 5, drops: [] };
-        startBattle(boss);
-    }
-    
-    function setClass(cn) { 
-        if(player.class) return; 
-        player.class=cn; 
-        player.weapon=WEAPONS[player.class][0]; 
-        if(cn==="warrior"){player.maxHp=260;player.hp=260;player.maxMp=40;player.mp=40;} 
-        else if(cn==="mage"){player.maxHp=180;player.hp=180;player.maxMp=110;player.mp=110;} 
-        else{player.maxHp=210;player.hp=210;player.maxMp=60;player.mp=60;} 
-        addSys(`🎭 Класс: ${cn.toUpperCase()}. Оружие: ${player.weapon.name} (+${player.weapon.dmg} урона)`); 
-        updateUI(); 
-        autoSaveToCloud();
-    }
-    
-    // ======================== // АККАУНТЫ (простая таблица) // ========================
+    // ============== РАБОТА С SUPABASE ==============
     
     async function register(username, password) {
-        if (!supabase) { addSys("❌ Ошибка подключения"); return false; }
-        if (username.length < 3 || username.length > 20) { addSys("❌ Имя 3-20 символов"); return false; }
-        if (password.length < 4) { addSys("❌ Пароль минимум 4 символа"); return false; }
+        if (!supabase) {
+            addMsg("❌ Ошибка подключения к серверу");
+            return false;
+        }
+        if (username.length < 3) {
+            addMsg("❌ Имя минимум 3 символа");
+            return false;
+        }
+        if (password.length < 4) {
+            addMsg("❌ Пароль минимум 4 символа");
+            return false;
+        }
         
         try {
-            // Проверяем, существует ли пользователь
-            const { data: existing } = await supabase
+            const hash = btoa(password);
+            const { error } = await supabase
                 .from("accounts")
-                .select("username")
-                .eq("username", username)
-                .maybeSingle();
+                .insert({ username: username, password_hash: hash });
             
-            if (existing) {
-                addSys("❌ Имя уже занято!");
+            if (error) {
+                if (error.code === "23505") {
+                    addMsg("❌ Имя уже занято!");
+                } else {
+                    addMsg("❌ Ошибка: " + error.message);
+                }
                 return false;
             }
             
-            // Простое хеширование (для демо)
-            const simpleHash = btoa(password);
-            
-            const { error } = await supabase
-                .from("accounts")
-                .insert({ username: username, password_hash: simpleHash, created_at: new Date() });
-            
-            if (error) throw error;
-            
-            addSys(`✅ Регистрация успешна! Теперь войдите.`, "achievement");
+            addMsg("✅ Регистрация успешна! Теперь войдите.", "achievement");
             return true;
         } catch(e) {
-            addSys(`❌ Ошибка: ${e.message}`);
+            addMsg("❌ Ошибка: " + e.message);
             return false;
         }
     }
     
     async function login(username, password) {
-        if (!supabase) { addSys("❌ Ошибка подключения"); return false; }
+        if (!supabase) {
+            addMsg("❌ Ошибка подключения к серверу");
+            return false;
+        }
         
         try {
-            const simpleHash = btoa(password);
-            
+            const hash = btoa(password);
             const { data, error } = await supabase
                 .from("accounts")
-                .select("*")
+                .select("id, username")
                 .eq("username", username)
-                .eq("password_hash", simpleHash)
-                .maybeSingle();
+                .eq("password_hash", hash)
+                .single();
             
-            if (error) throw error;
-            if (!data) {
-                addSys("❌ Неверное имя или пароль");
+            if (error || !data) {
+                addMsg("❌ Неверное имя или пароль");
                 return false;
             }
             
-            currentUser = { id: data.id, username: username };
+            currentUser = { id: data.id, username: data.username };
             localStorage.setItem("saved_username", username);
             localStorage.setItem("saved_password", btoa(password));
             
-            addSys(`✅ Добро пожаловать, ${username}!`, "achievement");
+            addMsg(`✅ Добро пожаловать, ${username}!`, "achievement");
             await loadGameFromCloud();
             updateUI();
             return true;
         } catch(e) {
-            addSys(`❌ Ошибка: ${e.message}`);
+            addMsg("❌ Ошибка: " + e.message);
             return false;
         }
     }
@@ -698,19 +531,17 @@
         localStorage.removeItem("saved_password");
         
         player = {
-            class: null, level: 1, xp: 0, gold: 800, glory: 0, hp: 200, maxHp: 200, mp: 50, maxMp: 50,
-            weapon: null, keys: { "Медный ключ": 0, "Серебряный ключ": 0, "Золотой ключ": 0, "Пламенный ключ": 0, "Ледяной ключ": 0, "Кровавый ключ": 0, "Магический ключ": 0, "Рунический ключ": 0 },
-            materials: { "Осколок магмы": 0, "Рунический камень": 0, "Ледяной осколок": 0, "Древний пергамент": 0, "Теневые нити": 0, "Эссенция тьмы": 0, "Лунная пыль": 0 },
-            inBattle: false, currentEnemy: null, autoAttack: false, autoHeal: false, attackInterval: null, healInterval: null,
-            usedPromoCodes: [], stats: { totalKills: 0, eliteKills: 0, totalCrafts: 0, totalGoldEarned: 0 }
+            class: null, level: 1, xp: 0, gold: 800, glory: 0, hp: 200, maxHp: 200,
+            weapon: null, inBattle: false, currentEnemy: null,
+            stats: { totalKills: 0, totalGoldEarned: 0 }
         };
         
-        addSys(`👋 Вы вышли из аккаунта.`, "system");
+        addMsg("👋 Вы вышли из аккаунта.");
         updateUI();
         showLoginPanel();
     }
     
-    async function autoSaveToCloud() {
+    async function saveToCloud() {
         if (!currentUser || !supabase) return;
         
         try {
@@ -722,24 +553,19 @@
                 glory: player.glory,
                 hp: player.hp,
                 maxHp: player.maxHp,
-                mp: player.mp,
-                maxMp: player.maxMp,
                 weapon: player.weapon,
-                keys: player.keys,
-                materials: player.materials,
-                stats: player.stats,
-                usedPromoCodes: player.usedPromoCodes
+                stats: player.stats
             };
             
             await supabase
                 .from("game_saves")
-                .upsert({ 
-                    user_id: currentUser.id, 
+                .upsert({
+                    user_id: currentUser.id,
                     save_data: saveData,
                     updated_at: new Date().toISOString()
-                }, { onConflict: "user_id" });
+                });
             
-            console.log("✅ Автосохранение");
+            console.log("Сохранено");
         } catch(e) {
             console.warn("Ошибка сохранения:", e);
         }
@@ -766,19 +592,18 @@
                 player.glory = d.glory || 0;
                 player.hp = d.hp || 200;
                 player.maxHp = d.maxHp || 200;
-                player.mp = d.mp || 50;
-                player.maxMp = d.maxMp || 50;
                 player.weapon = d.weapon || null;
-                if (d.keys) player.keys = { ...player.keys, ...d.keys };
-                if (d.materials) player.materials = { ...player.materials, ...d.materials };
-                if (d.stats) player.stats = d.stats;
-                if (d.usedPromoCodes) player.usedPromoCodes = d.usedPromoCodes;
+                player.stats = d.stats || { totalKills: 0, totalGoldEarned: 0 };
                 
-                addSys(`☁️ Прогресс загружен! Уровень ${player.level}`, "achievement");
+                addMsg(`☁️ Прогресс загружен! Уровень ${player.level}`, "achievement");
                 updateUI();
+                
+                if (!player.class) {
+                    showClassSelector();
+                }
                 return true;
             } else {
-                addSys(`📀 Новый аккаунт! Выберите класс.`, "system");
+                addMsg("📀 Новый аккаунт! Выберите класс.", "system");
                 showClassSelector();
                 return false;
             }
@@ -794,22 +619,25 @@
         try {
             await supabase
                 .from("leaderboard")
-                .upsert({ 
+                .upsert({
                     player_name: currentUser.username,
                     level: player.level,
                     glory: Math.floor(player.glory),
-                    total_kills: player.stats.totalKills,
-                    elite_kills: player.stats.eliteKills,
-                    updated_at: new Date().toISOString()
-                }, { onConflict: "player_name" });
-        } catch(e) { console.warn(e); }
+                    total_kills: player.stats.totalKills
+                });
+        } catch(e) {
+            console.warn(e);
+        }
     }
     
     async function showLeaderboard() {
-        if (!supabase) { addSys("❌ Онлайн-режим недоступен"); return; }
+        if (!supabase) {
+            addMsg("❌ Рейтинг недоступен");
+            return;
+        }
         
         let panel = document.getElementById("dynamicPanel");
-        panel.innerHTML = `<div class="select-item">🏆 ЗАГРУЗКА...</div>`;
+        panel.innerHTML = `<div>🏆 ЗАГРУЗКА...</div>`;
         panel.classList.remove("hidden");
         
         try {
@@ -817,26 +645,48 @@
                 .from("leaderboard")
                 .select("*")
                 .order("glory", { ascending: false })
-                .limit(30);
+                .limit(20);
             
             if (!data || data.length === 0) {
-                panel.innerHTML = `<div class="select-item">Рейтинг пуст</div><button id="closePanel">Закрыть</button>`;
+                panel.innerHTML = `<div>Рейтинг пуст</div><button id="closePanel">Закрыть</button>`;
             } else {
-                panel.innerHTML = `<strong>🏆 ТОП-30 🏆</strong><div class="select-list">` +
-                    data.map((p, i) => `<div class="select-item">${i+1}. ${p.player_name} | Ур.${p.level} | ✨${p.glory}</div>`).join('') +
-                    `</div><button id="closePanel">Закрыть</button>`;
+                panel.innerHTML = `<strong>🏆 ТОП-20 🏆</strong><div>`;
+                data.forEach((p, i) => {
+                    panel.innerHTML += `<div class="select-item">${i+1}. ${p.player_name} | Ур.${p.level} | ✨${p.glory}</div>`;
+                });
+                panel.innerHTML += `</div><button id="closePanel">Закрыть</button>`;
             }
             document.getElementById("closePanel").onclick = () => panel.classList.add("hidden");
-        } catch(e) { panel.innerHTML = `<div>Ошибка</div><button id="closePanel">Закрыть</button>`; }
+        } catch(e) {
+            panel.innerHTML = `<div>Ошибка</div><button id="closePanel">Закрыть</button>`;
+        }
     }
     
     function showClassSelector() {
         let panel = document.getElementById("dynamicPanel");
-        panel.innerHTML = `<div class="class-selector"><div class="class-btn" id="classWar">⚔️ ВОИН</div><div class="class-btn" id="classMage">🔮 МАГ</div><div class="class-btn" id="classArch">🏹 ЛУЧНИК</div></div>`;
+        panel.innerHTML = `
+            <div class="class-selector">
+                <div class="class-btn" id="classWar">⚔️ ВОИН</div>
+                <div class="class-btn" id="classMage">🔮 МАГ</div>
+                <div class="class-btn" id="classArch">🏹 ЛУЧНИК</div>
+            </div>
+            <button id="closePanel">Закрыть</button>
+        `;
         panel.classList.remove("hidden");
-        document.getElementById("classWar").onclick = () => { setClass("warrior"); panel.classList.add("hidden"); };
-        document.getElementById("classMage").onclick = () => { setClass("mage"); panel.classList.add("hidden"); };
-        document.getElementById("classArch").onclick = () => { setClass("archer"); panel.classList.add("hidden"); };
+        
+        document.getElementById("classWar").onclick = () => {
+            setClass("warrior");
+            panel.classList.add("hidden");
+        };
+        document.getElementById("classMage").onclick = () => {
+            setClass("mage");
+            panel.classList.add("hidden");
+        };
+        document.getElementById("classArch").onclick = () => {
+            setClass("archer");
+            panel.classList.add("hidden");
+        };
+        document.getElementById("closePanel").onclick = () => panel.classList.add("hidden");
     }
     
     function showLoginPanel() {
@@ -845,7 +695,7 @@
             <div class="login-panel">
                 <h3>🔐 ВХОД / РЕГИСТРАЦИЯ</h3>
                 <input type="text" id="loginUsername" placeholder="Имя (3-20 символов)">
-                <input type="password" id="loginPassword" placeholder="Пароль (мин. 4 символа)">
+                <input type="password" id="loginPassword" placeholder="Пароль (мин. 4)">
                 <button id="doLoginBtn">🔓 ВОЙТИ</button>
                 <button id="doRegisterBtn">📝 РЕГИСТРАЦИЯ</button>
                 <button id="closePanel">Закрыть</button>
@@ -859,25 +709,26 @@
             if (name && pass) {
                 await login(name, pass);
                 panel.classList.add("hidden");
-            } else addSys("❌ Введите имя и пароль");
+            } else {
+                addMsg("❌ Введите имя и пароль");
+            }
         };
         
         document.getElementById("doRegisterBtn").onclick = async () => {
             let name = document.getElementById("loginUsername").value.trim();
             let pass = document.getElementById("loginPassword").value;
             if (name && pass) {
-                if (await register(name, pass)) {
-                    panel.classList.add("hidden");
-                }
-            } else addSys("❌ Введите имя и пароль");
+                await register(name, pass);
+                panel.classList.add("hidden");
+            } else {
+                addMsg("❌ Введите имя и пароль");
+            }
         };
         
         document.getElementById("closePanel").onclick = () => panel.classList.add("hidden");
     }
     
-    // ======================== // ЗАПУСК // ========================
-    
-    async function tryAutoLogin() {
+    async function autoLogin() {
         let savedName = localStorage.getItem("saved_username");
         let savedPass = localStorage.getItem("saved_password");
         if (savedName && savedPass) {
@@ -887,50 +738,49 @@
         }
     }
     
-    // Привязка кнопок
+    function processCommand(cmd) {
+        let c = cmd.toLowerCase().trim();
+        if (c === "статы") {
+            addMsg(`Ур.${player.level} ❤️${Math.floor(player.hp)}/${player.maxHp} 🪙${Math.floor(player.gold)} ✨${Math.floor(player.glory)}`);
+        } else if (c === "помощь") {
+            addMsg(`Команды: статы, очистить | Кнопки: КВЕСТЫ, БОССЫ, АТАКА, ЛЕЧИТЬ, МАГАЗИН`);
+        } else if (c === "очистить") {
+            document.getElementById("chatArea").innerHTML = '<div class="msg system">🌀 Чат очищен.</div>';
+        } else {
+            addMsg(`❓ Неизвестно. Введите "помощь".`);
+        }
+    }
+    
+    // ============== ПРИВЯЗКА КНОПОК ==============
     document.getElementById("loginBtn").onclick = showLoginPanel;
     document.getElementById("registerBtn").onclick = showLoginPanel;
     document.getElementById("logoutBtn").onclick = logout;
-    document.getElementById("questBtn").onclick = () => { if(player.class) showQuests(); else addSys("Выберите класс!"); };
-    document.getElementById("bossListBtn").onclick = () => { if(player.class) showBosses(); else addSys("Выберите класс!"); };
-    document.getElementById("dailyBossBtn").onclick = dailyBossFight;
+    document.getElementById("questBtn").onclick = () => { if(player.class) showQuests(); else addMsg("Сначала выберите класс!"); };
+    document.getElementById("bossBtn").onclick = () => { if(player.class) showQuests(); else addMsg("Сначала выберите класс!"); };
     document.getElementById("attackBtn").onclick = attack;
-    document.getElementById("autoAttackBtn").onclick = toggleAutoAttack;
     document.getElementById("healBtn").onclick = heal;
-    document.getElementById("autoHealBtn").onclick = toggleAutoHeal;
-    document.getElementById("shopBtn").onclick = shop;
-    document.getElementById("gloryShopBtn").onclick = gloryShop;
-    document.getElementById("inventoryBtn").onclick = showInventory;
-    document.getElementById("craftBtn").onclick = () => { addSys("⚙️ Крафт в разработке"); };
-    document.getElementById("upgradeBtn").onclick = showUpgradeMenu;
+    document.getElementById("shopBtn").onclick = showShop;
     document.getElementById("leaderboardBtn").onclick = showLeaderboard;
-    document.getElementById("achievementsBtn").onclick = showAchievements;
-    document.getElementById("dailyQuestsBtn").onclick = showDailyQuests;
-    document.getElementById("promoBtn").onclick = () => { addSys("🎁 Промокод: WELCOME (+500💰 +100✨)"); };
-    document.getElementById("themeBtn").onclick = () => { document.body.classList.toggle("light"); localStorage.setItem("theme", document.body.classList.contains("light") ? "light" : "dark"); };
-    document.getElementById("sendBtn").onclick = () => { let inp = document.getElementById("cmdInput"); processCmd(inp.value); inp.value = ""; };
+    document.getElementById("sendBtn").onclick = () => {
+        let inp = document.getElementById("cmdInput");
+        processCommand(inp.value);
+        inp.value = "";
+    };
     
-    function processCmd(cmd) { 
-        let c = cmd.toLowerCase().trim();
-        if (c === "очистить") { clearChat(); return; }
-        if (c === "статы") { addSys(`Ур.${player.level} ❤️${Math.floor(player.hp)}/${player.maxHp} 🪙${Math.floor(player.gold)} ✨${Math.floor(player.glory)}`); return; }
-        if (c === "рейтинг") { showLeaderboard(); return; }
-        if (c === "сохранить") { autoSaveToCloud(); addSys("💾 Сохранено!"); return; }
-        if (c === "помощь") { addSys(`Команды: статы, рейтинг, сохранить, очистить`); return; }
-        addSys(`❓ Неизвестно. "помощь"`); 
-    }
+    // ============== ЗАПУСК ==============
+    autoLogin();
     
-    function clearChat() {
-        let chat = document.getElementById("chatArea");
-        chat.innerHTML = '<div class="msg system">🌀 Чат очищен.</div>';
-    }
+    // Атака врага каждые 4 секунды
+    setInterval(() => {
+        if (player.inBattle && player.currentEnemy && player.currentEnemy.hp > 0 && player.hp > 0) {
+            enemyAttack();
+        }
+    }, 4000);
     
-    let savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "light") document.body.classList.add("light");
-    
-    tryAutoLogin();
-    setInterval(() => { autoSaveToCloud(); }, 30000);
-    setInterval(() => { if(player.inBattle && player.currentEnemy && player.currentEnemy.hp>0 && player.hp>0) enemyAttack(); }, 4000);
+    // Автосохранение каждые 30 секунд
+    setInterval(() => {
+        saveToCloud();
+    }, 30000);
 </script>
 </body>
 </html>
